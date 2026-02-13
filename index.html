@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>لعبة الفواكه الأربعة - محلي P2P</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+ <!-- نفس الـ HTML السابق مع إضافة هذا العنصر للتشغيل المحلي -->
+    <div id="local-mode-badge" style="position: fixed; bottom: 10px; left: 10px; background: #ff6b6b; color: white; padding: 5px 10px; border-radius: 20px; font-size: 12px; z-index: 9999;">
+        ⚡ وضع التجربة المحلية
+    </div>
+    
+    <!-- جميع العناصر الأخرى كما هي -->
+    <!-- ... -->
+    
+    <!-- تغيير ترتيب تحميل المكتبات -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <!-- استخدام نسخة أكثر استقراراً من PeerJS -->
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    
+
+    <div id="splash-screen" class="screen">
+        <div class="splash-content">
+            <h1>🍎 الفواكه الأربعة 🍌</h1>
+            <p>العب مع أصدقائك في نفس الغرفة</p>
+            <div class="loading-spinner"></div>
+            <p class="small">جاري تحميل اللعبة...</p>
+        </div>
+    </div>
+
+    <div id="main-menu" class="screen hidden">
+        <div class="menu-container">
+            <h1>🍇 الفواكه الأربعة 🍊</h1>
+            <div class="menu-buttons">
+                <button id="create-room-btn" class="primary-btn">➕ إنشاء غرفة جديدة</button>
+                <button id="join-room-btn" class="secondary-btn">🔍 انضم إلى غرفة</button>
+                <button id="single-player-btn" class="outline-btn">🎮 العب ضد الكمبيوتر</button>
+            </div>
+            <div class="instructions">
+                <h3>كيف تلعب؟</h3>
+                <p>اجمع 4 بطاقات من نفس النوع قبل الآخرين!</p>
+                <p>عند اكتمال مجموعتك، اضغط على زر "تم" بسرعة</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="lobby-screen" class="screen hidden">
+        <div class="lobby-container">
+            <h2>غرفة الانتظار</h2>
+            <div class="room-info">
+                <p>🔑 رمز الغرفة: <span id="room-code">ABCD</span></p>
+                <p>اللاعبون: <span id="player-count">1/4</span></p>
+                <div id="qr-code-container">
+                    <canvas id="qr-code"></canvas>
+                    <p class="small">امسح للانضمام السريع</p>
+                </div>
+            </div>
+            <div class="players-list" id="players-list">
+                <div class="player-item host">👑 أنت (المضيف)</div>
+                <div class="player-item empty">⬜ في انتظار لاعبين...</div>
+            </div>
+            <div class="lobby-controls">
+                <button id="start-game-btn" class="primary-btn" disabled>ابدأ اللعبة (2 لاعبين على الأقل)</button>
+                <button id="back-from-lobby-btn" class="text-btn">↩️ رجوع</button>
+            </div>
+            <div class="invite-link">
+                <p>أو أرسل هذا الرابط:</p>
+                <div class="link-copy">
+                    <input type="text" id="invite-link" readonly>
+                    <button id="copy-link-btn">📋 نسخ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-screen" class="screen hidden">
+        <div class="game-header">
+            <div class="timer" id="game-timer">00:00</div>
+            <div class="category" id="game-category">الفواكه</div>
+            <button id="leave-game-btn" class="small-btn">🚪 خروج</button>
+        </div>
+        
+        <div class="players-status" id="players-status">
+            <!-- سيتم تعبئتها ديناميكياً -->
+        </div>
+        
+        <div class="my-hand" id="my-hand">
+            <h3>بطاقاتي <span id="cards-count">0/4</span></h3>
+            <div class="cards-container" id="cards-container">
+                <!-- البطاقات ستظهر هنا -->
+            </div>
+        </div>
+        
+        <div class="game-controls">
+            <button id="done-button" class="win-btn" disabled>🎯 تم! (4 من نفس النوع)</button>
+            <div class="action-log" id="action-log">
+                <p>⏳ في انتظار دورك...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="join-screen" class="screen hidden">
+        <div class="join-container">
+            <h2>انضم إلى غرفة</h2>
+            <div class="qr-scanner">
+                <p>امسح رمز QR الخاص بالمضيف</p>
+                <div id="scanner-preview">
+                    <video id="qr-video"></video>
+                    <canvas id="qr-canvas" hidden></canvas>
+                </div>
+                <button id="scan-qr-btn" class="secondary-btn">📷 فتح الكاميرا</button>
+            </div>
+            <div class="or-divider">أو</div>
+            <div class="manual-join">
+                <input type="text" id="room-code-input" placeholder="أدخل رمز الغرفة" maxlength="4">
+                <button id="join-with-code-btn" class="primary-btn">انضمام</button>
+            </div>
+            <button id="back-to-menu-btn" class="text-btn">↩️ رجوع</button>
+        </div>
+    </div>
+
+    <div id="single-player-screen" class="screen hidden">
+        <div class="single-player-container">
+            <h2>العب ضد الكمبيوتر</h2>
+            <div class="difficulty-selector">
+                <button data-diff="easy" class="diff-btn selected">🌱 سهل</button>
+                <button data-diff="medium" class="diff-btn">⚡ متوسط</button>
+                <button data-diff="hard" class="diff-btn">🔥 صعب</button>
+            </div>
+            <button id="start-single-player" class="primary-btn">ابدأ اللعبة</button>
+            <button id="back-from-single" class="text-btn">↩️ رجوع</button>
+        </div>
+    </div>
+
+    <div id="result-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2 id="result-title">🎉 فاز أحمد!</h2>
+            <p id="result-message">تمكن من جمع 4 تفاحات أولاً</p>
+            <button id="next-round-btn" class="primary-btn">الجولة التالية</button>
+            <button id="end-game-btn" class="text-btn">إنهاء اللعبة</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script src="game.js"></script>
+    <!-- إضافة مكتبات إضافية -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <!-- إضافة مكتبة jsQR لمسح QR (اختياري) -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    
+     <!-- ملفات اللعبة -->
+    <script src="config.js"></script>
+    <script src="p2p-fallback.js"></script>
+    <script src="game-fixed.js"></script>
+</body>
+</html>

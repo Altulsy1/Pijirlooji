@@ -1,0 +1,735 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #333;
+}
+
+.screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.hidden {
+    display: none;
+}
+
+/* شاشة البداية */
+.splash-content {
+    text-align: center;
+}
+
+.splash-content h1 {
+    font-size: 2.5rem;
+    color: #667eea;
+    margin-bottom: 1rem;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* القائمة الرئيسية */
+.menu-container {
+    max-width: 400px;
+    width: 100%;
+    background: white;
+    border-radius: 20px;
+    padding: 40px 30px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    text-align: center;
+}
+
+.menu-container h1 {
+    font-size: 2rem;
+    margin-bottom: 30px;
+    color: #764ba2;
+}
+
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+button {
+    padding: 15px 25px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.primary-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.primary-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+}
+
+.primary-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.secondary-btn {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.secondary-btn:hover {
+    background: #e0e0e0;
+}
+
+.outline-btn {
+    background: transparent;
+    border: 2px solid #667eea;
+    color: #667eea;
+}
+
+.outline-btn:hover {
+    background: #667eea;
+    color: white;
+}
+
+/* غرفة الانتظار */
+.lobby-container {
+    max-width: 500px;
+    width: 100%;
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+}
+
+.room-info {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+#qr-code-container {
+    text-align: center;
+    margin-top: 15px;
+}
+
+#qr-code {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+}
+
+.players-list {
+    margin: 20px 0;
+    border: 2px solid #f0f0f0;
+    border-radius: 12px;
+    padding: 15px;
+}
+
+.player-item {
+    padding: 12px;
+    margin: 8px 0;
+    background: #f8f9fa;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.player-item.host {
+    background: #e3f2fd;
+    color: #1976d2;
+    font-weight: bold;
+}
+
+.player-item.empty {
+    color: #999;
+    font-style: italic;
+}
+
+.invite-link {
+    margin-top: 20px;
+}
+
+.link-copy {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.link-copy input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+/* شاشة اللعب */
+.game-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 10;
+}
+
+.timer {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ff6b6b;
+}
+
+.category {
+    background: #f0f0f0;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.players-status {
+    margin-top: 80px;
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+.player-badge {
+    background: white;
+    border-radius: 25px;
+    padding: 8px 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.player-badge.ready {
+    border: 2px solid #4caf50;
+}
+
+.player-badge.winner {
+    background: gold;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.my-hand {
+    padding: 20px;
+    margin: 20px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+}
+
+.cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.card {
+    width: 100px;
+    height: 140px;
+    background: linear-gradient(145deg, #fff0f0, #ffe0e0);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 3rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+    animation: dealCard 0.5s ease;
+}
+
+@keyframes dealCard {
+    0% { transform: translateY(-200px) rotate(180deg); opacity: 0; }
+    100% { transform: translateY(0) rotate(0); opacity: 1; }
+}
+
+.card .fruit-name {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 5px;
+}
+
+.game-controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px;
+    background: white;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+}
+
+.win-btn {
+    width: 100%;
+    padding: 20px;
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, #ff6b6b, #ff4757);
+    color: white;
+    margin-bottom: 10px;
+}
+
+.win-btn:disabled {
+    opacity: 0.3;
+}
+
+.action-log {
+    text-align: center;
+    color: #666;
+    padding: 10px;
+    font-style: italic;
+}
+
+/* شاشة الانضمام */
+.join-container {
+    max-width: 500px;
+    width: 100%;
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+}
+
+.qr-scanner {
+    margin: 20px 0;
+}
+
+#scanner-preview {
+    width: 100%;
+    height: 300px;
+    background: #333;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+#qr-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.or-divider {
+    text-align: center;
+    margin: 20px 0;
+    position: relative;
+}
+
+.or-divider::before,
+.or-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 45%;
+    height: 1px;
+    background: #ddd;
+}
+
+.or-divider::before { left: 0; }
+.or-divider::after { right: 0; }
+
+.manual-join {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.manual-join input {
+    flex: 1;
+    padding: 15px;
+    border: 2px solid #f0f0f0;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    text-align: center;
+    letter-spacing: 5px;
+}
+
+/* شاشة لاعب واحد */
+.single-player-container {
+    max-width: 400px;
+    width: 100%;
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+}
+
+.difficulty-selector {
+    display: flex;
+    gap: 10px;
+    margin: 30px 0;
+    justify-content: center;
+}
+
+.diff-btn {
+    flex: 1;
+    padding: 12px;
+    background: #f0f0f0;
+    color: #666;
+}
+
+.diff-btn.selected {
+    background: #667eea;
+    color: white;
+}
+
+/* المودال */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+#result-title {
+    font-size: 2rem;
+    margin-bottom: 15px;
+    color: #764ba2;
+}
+
+#result-message {
+    margin-bottom: 25px;
+    color: #666;
+}
+
+/* تنسيقات عامة */
+.small {
+    font-size: 0.9rem;
+    color: #999;
+}
+
+.text-btn {
+    background: none;
+    color: #666;
+    text-decoration: underline;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* للأجهزة المحمولة */
+@media (max-width: 600px) {
+    .card {
+        width: 70px;
+        height: 100px;
+        font-size: 2rem;
+    }
+    
+    .player-badge {
+        font-size: 0.9rem;
+    }
+}
+/* تأثيرات البطاقات المتقدمة */
+.card {
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-10px) rotate(2deg);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s;
+}
+
+.card:hover::before {
+    left: 100%;
+}
+
+.card.selected {
+    animation: selectedPulse 1s infinite;
+    border: 3px solid gold;
+}
+
+@keyframes selectedPulse {
+    0% { box-shadow: 0 0 0 0 gold; }
+    70% { box-shadow: 0 0 20px 10px rgba(255,215,0,0.3); }
+    100% { box-shadow: 0 0 0 0 gold; }
+}
+
+/* تأثير الفوز */
+.win-btn.pulse {
+    animation: winPulse 0.8s infinite;
+}
+
+@keyframes winPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); background: linear-gradient(135deg, #ff8a8a, #ff6b6b); }
+    100% { transform: scale(1); }
+}
+
+/* تأثير العد التنازلي */
+.timer.warning {
+    color: #ff0000;
+    animation: timerWarning 0.5s infinite;
+}
+
+@keyframes timerWarning {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+// ==================== نظام تبادل البطاقات ====================
+let selectedCard = null;
+
+function enableCardTrading() {
+    document.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('click', (e) => {
+            if (!gameState.gameData.gameActive) return;
+            
+            const cardElement = e.currentTarget;
+            const cardIndex = Array.from(document.querySelectorAll('.card')).indexOf(cardElement);
+            
+            if (selectedCard === null) {
+                // تحديد بطاقة
+                selectedCard = {
+                    element: cardElement,
+                    index: cardIndex,
+                    data: gameState.gameData.playersCards[gameState.playerId][cardIndex]
+                };
+                cardElement.classList.add('selected');
+                addActionLog('اختر لاعباً لتمرير البطاقة إليه...');
+            } else {
+                // إلغاء التحديد
+                selectedCard.element.classList.remove('selected');
+                selectedCard = null;
+                updateMyHand(gameState.gameData.playersCards[gameState.playerId]);
+            }
+        });
+    });
+}
+
+function passCardToPlayer(targetPlayerId) {
+    if (!selectedCard) return;
+    
+    const cardData = selectedCard.data;
+    
+    if (gameState.isHost) {
+        // المضيف: نفذ التمرير مباشرة
+        executeCardPass(gameState.playerId, targetPlayerId, cardData);
+    } else {
+        // العميل: أرسل للمضيف
+        gameState.connection.send({
+            type: 'card-pass',
+            from: gameState.playerId,
+            to: targetPlayerId,
+            card: cardData
+        });
+    }
+    
+    selectedCard.element.classList.remove('selected');
+    selectedCard = null;
+}
+
+function executeCardPass(fromId, toId, card) {
+    // إزالة البطاقة من المرسل
+    const fromCards = gameState.gameData.playersCards[fromId];
+    const cardIndex = fromCards.findIndex(c => c.id === card.id);
+    if (cardIndex !== -1) {
+        fromCards.splice(cardIndex, 1);
+    }
+    
+    // إضافة البطاقة للمستقبل
+    if (!gameState.gameData.playersCards[toId]) {
+        gameState.gameData.playersCards[toId] = [];
+    }
+    gameState.gameData.playersCards[toId].push(card);
+    
+    // تحديث الواجهة
+    if (fromId === gameState.playerId) {
+        updateMyHand(fromCards);
+    }
+    
+    if (toId === gameState.playerId) {
+        updateMyHand(gameState.gameData.playersCards[toId]);
+    }
+    
+    // بث التحديث للجميع (إذا كان المضيف)
+    if (gameState.isHost) {
+        broadcastToAll({
+            type: 'game-state',
+            playersCards: gameState.gameData.playersCards
+        });
+    }
+    
+    addActionLog(`🔁 تم تمرير بطاقة`);
+}
+
+// إضافة قائمة اللاعبين للتمرير
+function showPlayerListForPass() {
+    if (!selectedCard) return;
+    
+    const players = Object.entries(gameState.players)
+        .filter(([id]) => id !== gameState.playerId);
+    
+    let message = 'اختر لاعباً لتمرير البطاقة:\n';
+    players.forEach(([id, player], index) => {
+        message += `${index + 1}. ${player.name}\n`;
+    });
+    
+    const choice = prompt(message);
+    if (choice && players[parseInt(choice) - 1]) {
+        passCardToPlayer(players[parseInt(choice) - 1][0]);
+    }
+}
+/* تحسينات الجوال */
+@media (max-width: 600px) {
+    .game-header {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+    
+    .players-status {
+        margin-top: 70px;
+        padding: 10px;
+    }
+    
+    .player-badge {
+        padding: 5px 10px;
+        font-size: 0.8rem;
+    }
+    
+    .my-hand {
+        padding: 15px;
+        margin: 10px;
+    }
+    
+    .card {
+        width: 65px;
+        height: 95px;
+        font-size: 2rem;
+    }
+    
+    .card .fruit-name {
+        font-size: 0.7rem;
+    }
+    
+    .win-btn {
+        padding: 15px;
+        font-size: 1.2rem;
+    }
+    
+    button {
+        padding: 12px 20px;
+        font-size: 1rem;
+    }
+    
+    /* تحسين شاشة الانضمام */
+    #qr-code-container {
+        width: 100%;
+    }
+    
+    #qr-code {
+        width: 120px;
+        height: 120px;
+    }
+    
+    /* تحسين المودال */
+    .modal-content {
+        padding: 25px;
+        margin: 20px;
+    }
+}
+
+/* دعم الشاشات الصغيرة جداً */
+@media (max-width: 380px) {
+    .card {
+        width: 55px;
+        height: 80px;
+        font-size: 1.5rem;
+    }
+    
+    .game-header {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .player-badge {
+        width: 100%;
+        justify-content: center;
+    }
+}
