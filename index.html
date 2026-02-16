@@ -293,6 +293,7 @@
             display: flex;
             gap: 15px;
             justify-content: center;
+            flex-wrap: wrap;
         }
 
         .social-btn {
@@ -317,6 +318,19 @@
 
         .social-btn:active {
             transform: scale(0.9);
+        }
+
+        .guest-btn {
+            background: linear-gradient(135deg, #FFA502, #FF7F50);
+            width: auto;
+            padding: 0 20px;
+            border-radius: 30px;
+            font-size: 1rem;
+            gap: 8px;
+        }
+
+        .guest-btn span {
+            font-size: 1.3rem;
         }
 
         .auth-link {
@@ -393,6 +407,13 @@
             align-items: center;
             justify-content: center;
             font-size: 1.2rem;
+            overflow: hidden;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .user-name {
@@ -1366,6 +1387,14 @@
             animation: bounce 1s infinite;
         }
 
+        .guest-indicator {
+            background: linear-gradient(135deg, #FFA502, #FF7F50);
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-left: 5px;
+        }
+
         @media (max-width: 380px) {
             .card-emoji-modern { font-size: 1.6rem; }
             .card-name-modern { font-size: 0.65rem; }
@@ -1396,7 +1425,7 @@
                 <div class="auth-header">
                     <div class="auth-logo">🎮</div>
                     <h2 class="auth-title">الكلمات الأربعة</h2>
-                    <p class="auth-subtitle">سجل دخولك واستمتع باللعب</p>
+                    <p class="auth-subtitle">سجل دخولك أو العب كزائر</p>
                 </div>
 
                 <div class="auth-tabs">
@@ -1462,9 +1491,13 @@
                     <button class="social-btn" onclick="signInWithGoogle()" title="تسجيل بجوجل">
                         <span>🔴</span>
                     </button>
-                    <button class="social-btn" onclick="signInAnonymously()" title="دخول سريع">
-                        <span>👤</span>
+                    <button class="social-btn guest-btn" onclick="quickGuestAccess()" title="دخول سريع بدون حساب">
+                        <span>⚡</span> دخول كزائر
                     </button>
+                </div>
+                
+                <div class="auth-link" onclick="useLocalGuestMode()">
+                    <span>🎮</span> دخول سريع جداً (بدون إنترنت)
                 </div>
             </div>
         </div>
@@ -1547,6 +1580,9 @@
                 <button class="btn-modern btn-secondary-modern" onclick="showInstructions()">
                     <span>📚</span> شرح اللعبة
                 </button>
+                <button class="btn-modern btn-secondary-modern" onclick="shareResult()">
+                    <span>📤</span> مشاركة النتيجة
+                </button>
             </div>
 
             <div class="stats-modern">
@@ -1618,6 +1654,86 @@
         const auth = firebase.auth();
         const database = firebase.database();
 
+        // ==================== متغيرات اللعبة ====================
+        const gameState = {
+            userId: null,
+            playerName: localStorage.getItem('playerName') || 'لاعب',
+            localMode: false,
+            currentCategory: 'fruits',
+            currentRound: 1,
+            players: [
+                { id: 'player1', name: '', avatar: '👤', isCurrent: true, wins: 0 },
+                { id: 'player2', name: 'محمد', avatar: '👨', isCurrent: false, wins: 0 },
+                { id: 'player3', name: 'عبدالقادر', avatar: '👦', isCurrent: false, wins: 0 },
+                { id: 'player4', name: 'أسماء', avatar: '👧', isCurrent: false, wins: 0 }
+            ],
+            currentPlayerIndex: 0,
+            cards: {},
+            gameActive: false,
+            timerInterval: null,
+            timeLeft: 60,
+            stats: {
+                games: 0,
+                wins: 0,
+                fastestWin: null
+            },
+            lastAction: 0
+        };
+
+        // ==================== قوائم الفئات ====================
+        const categories = {
+            fruits: {
+                name: 'فواكه',
+                icon: '🍎',
+                items: [
+                    { emoji: '🍎', name: 'تفاح' },
+                    { emoji: '🍌', name: 'موز' },
+                    { emoji: '🍊', name: 'برتقال' },
+                    { emoji: '🍇', name: 'عنب' }
+                ]
+            },
+            vegetables: {
+                name: 'خضروات',
+                icon: '🥕',
+                items: [
+                    { emoji: '🥕', name: 'جزر' },
+                    { emoji: '🥦', name: 'بروكلي' },
+                    { emoji: '🍅', name: 'طماطم' },
+                    { emoji: '🥒', name: 'خيار' }
+                ]
+            },
+            animals: {
+                name: 'حيوانات',
+                icon: '🦁',
+                items: [
+                    { emoji: '🦁', name: 'أسد' },
+                    { emoji: '🐯', name: 'نمر' },
+                    { emoji: '🐘', name: 'فيل' },
+                    { emoji: '🦒', name: 'زرافة' }
+                ]
+            },
+            birds: {
+                name: 'طيور',
+                icon: '🐦',
+                items: [
+                    { emoji: '🐦', name: 'عصفور' },
+                    { emoji: '🦅', name: 'نسر' },
+                    { emoji: '🦉', name: 'بومة' },
+                    { emoji: '🐧', name: 'بطريق' }
+                ]
+            },
+            capitals: {
+                name: 'عواصم',
+                icon: '🏛️',
+                items: [
+                    { emoji: '🇸🇦', name: 'الرياض' },
+                    { emoji: '🇪🇬', name: 'القاهرة' },
+                    { emoji: '🇦🇪', name: 'أبوظبي' },
+                    { emoji: '🇺🇸', name: 'واشنطن' }
+                ]
+            }
+        };
+
         // ==================== دوال شاشة تسجيل الدخول ====================
         function switchAuthTab(tab) {
             const loginTab = document.getElementById('loginTab');
@@ -1637,7 +1753,6 @@
                 loginForm.classList.add('hidden');
             }
 
-            // إخفاء الرسائل
             hideMessages();
         }
 
@@ -1652,8 +1767,6 @@
             const errorText = document.getElementById('errorText');
             errorText.textContent = message;
             errorDiv.classList.add('show');
-            
-            // إخفاء رسالة النجاح إذا كانت ظاهرة
             document.getElementById('successMessage').classList.remove('show');
         }
 
@@ -1662,8 +1775,6 @@
             const successText = document.getElementById('successText');
             successText.textContent = message;
             successDiv.classList.add('show');
-            
-            // إخفاء رسالة الخطأ إذا كانت ظاهرة
             document.getElementById('errorMessage').classList.remove('show');
         }
 
@@ -1672,14 +1783,13 @@
             document.getElementById('successMessage').classList.remove('show');
         }
 
-        // ==================== دوال المصادقة الجديدة ====================
+        // ==================== دوال المصادقة ====================
         function registerWithEmail() {
             const name = document.getElementById('registerName').value.trim();
             const email = document.getElementById('registerEmail').value.trim();
             const password = document.getElementById('registerPassword').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
 
-            // التحقق من المدخلات
             if (!name || !email || !password || !confirmPassword) {
                 showError('جميع الحقول مطلوبة');
                 return;
@@ -1695,10 +1805,8 @@
                 return;
             }
 
-            // إنشاء المستخدم
             auth.createUserWithEmailAndPassword(email, password)
                 .then(userCredential => {
-                    // تحديث الاسم
                     return userCredential.user.updateProfile({
                         displayName: name
                     }).then(() => {
@@ -1709,7 +1817,6 @@
                     const user = userCredential.user;
                     showSuccess('تم إنشاء الحساب بنجاح! جاري تسجيل الدخول...');
                     
-                    // حفظ بيانات المستخدم في قاعدة البيانات
                     setTimeout(() => {
                         loadUserData(user.uid, user.displayName || name, user.photoURL);
                     }, 1500);
@@ -1809,67 +1916,113 @@
                 });
         }
 
-        function signInAnonymously() {
+        // ==================== دوال الزائر الجديدة ====================
+        function quickGuestAccess() {
+            // إنشاء اسم زائر عشوائي
+            const guestNames = ['مغامر', 'متحدي', 'بطل', 'نجم', 'سريع', 'ذكي', 'محظوظ'];
+            const randomName = guestNames[Math.floor(Math.random() * guestNames.length)] + Math.floor(Math.random() * 1000);
+            
+            showSuccess(`✨ مرحباً ${randomName}! جاري الدخول كزائر...`);
+            
+            // محاولة تسجيل الدخول المجهول عبر Firebase
             auth.signInAnonymously()
                 .then(result => {
                     const user = result.user;
-                    showSuccess('تم الدخول كزائر! جاري التحميل...');
+                    return user.updateProfile({
+                        displayName: randomName
+                    }).then(() => {
+                        return { user, randomName };
+                    });
+                })
+                .then(({ user, randomName }) => {
+                    // حفظ في localStorage
+                    localStorage.setItem('guestMode', 'true');
+                    localStorage.setItem('guestName', randomName);
                     
                     setTimeout(() => {
-                        loadUserData(user.uid, 'زائر', null);
-                    }, 1500);
+                        loadUserData(user.uid, randomName, null);
+                        showToast(`🎮 أهلاً بك يا ${randomName}`, 'success');
+                    }, 1000);
                 })
                 .catch(error => {
-                    console.error('خطأ في الدخول:', error);
-                    showError('فشل الدخول كزائر');
+                    console.error('خطأ في الدخول السريع:', error);
+                    // إذا فشل الاتصال بـ Firebase، استخدم الوضع المحلي
+                    useLocalGuestMode();
                 });
         }
 
-        function logout() {
-            auth.signOut()
-                .then(() => {
-                    showToast('تم تسجيل الخروج', 'info');
-                    updateAuthUI(null);
-                    resetStats();
-                    
-                    // العودة لشاشة تسجيل الدخول
-                    document.getElementById('authScreen').classList.remove('hidden');
-                    document.getElementById('startScreen').classList.add('hidden');
-                })
-                .catch(error => {
-                    console.error('خطأ في تسجيل الخروج:', error);
-                });
+        function useLocalGuestMode() {
+            const guestNames = ['مغامر', 'متحدي', 'بطل', 'نجم', 'سريع', 'ذكي', 'محظوظ', 'ضيف'];
+            const randomName = guestNames[Math.floor(Math.random() * guestNames.length)] + Math.floor(Math.random() * 1000);
+            
+            // إنشاء معرف محلي
+            const localUserId = 'local_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            
+            showSuccess(`✨ مرحباً ${randomName}! وضع اللعب المحلي`);
+            
+            // تفعيل الوضع المحلي
+            gameState.localMode = true;
+            gameState.userId = localUserId;
+            gameState.playerName = randomName;
+            
+            // تحميل الإحصائيات المحلية إن وجدت
+            loadLocalStats();
+            
+            // حفظ في localStorage
+            localStorage.setItem('guestMode', 'true');
+            localStorage.setItem('guestName', randomName);
+            localStorage.setItem('localUserId', localUserId);
+            
+            // تحديث الواجهة
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('startScreen').classList.remove('hidden');
+            
+            updateAuthUI({
+                uid: localUserId,
+                displayName: randomName,
+                photoURL: null,
+                isLocal: true
+            });
+            
+            gameState.players[0].name = randomName;
+            updatePlayerDisplay();
+            updateStatsDisplay();
+            
+            showToast(`🎮 أهلاً بك ${randomName} في وضع الزائر`, 'success');
         }
 
-        // مراقبة حالة المصادقة
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                // مستخدم مسجل دخول - إخفاء شاشة تسجيل الدخول
-                document.getElementById('authScreen').classList.add('hidden');
-                document.getElementById('startScreen').classList.remove('hidden');
-                
-                loadUserData(user.uid, user.displayName || 'مستخدم', user.photoURL);
-            } else {
-                // لا يوجد مستخدم - إظهار شاشة تسجيل الدخول
-                document.getElementById('authScreen').classList.remove('hidden');
-                document.getElementById('startScreen').classList.add('hidden');
-                document.getElementById('gameScreen').classList.add('hidden');
-                
-                updateAuthUI(null);
-                resetStats();
+        function loadLocalStats() {
+            const savedGames = localStorage.getItem('guestGames');
+            const savedWins = localStorage.getItem('guestWins');
+            const savedFastest = localStorage.getItem('guestFastest');
+            
+            gameState.stats = {
+                games: savedGames ? parseInt(savedGames) : 0,
+                wins: savedWins ? parseInt(savedWins) : 0,
+                fastestWin: savedFastest || null
+            };
+        }
+
+        function saveGuestStats() {
+            if (gameState.localMode) {
+                localStorage.setItem('guestGames', gameState.stats.games.toString());
+                localStorage.setItem('guestWins', gameState.stats.wins.toString());
+                if (gameState.stats.fastestWin) {
+                    localStorage.setItem('guestFastest', gameState.stats.fastestWin);
+                }
             }
-        });
+        }
 
+        // ==================== دوال Firebase والمستخدم ====================
         function loadUserData(uid, displayName, photoURL) {
             gameState.userId = uid;
+            gameState.localMode = false;
             
-            // تحميل بيانات المستخدم من Realtime Database
             const userRef = database.ref('users/' + uid);
             userRef.once('value', snapshot => {
                 const userData = snapshot.val();
                 
                 if (userData) {
-                    // استخدام البيانات المحفوظة
                     gameState.playerName = userData.name || displayName;
                     gameState.stats = userData.stats || {
                         games: 0,
@@ -1877,7 +2030,6 @@
                         fastestWin: null
                     };
                 } else {
-                    // مستخدم جديد - إنشاء سجل
                     gameState.playerName = displayName;
                     gameState.stats = {
                         games: 0,
@@ -1885,7 +2037,6 @@
                         fastestWin: null
                     };
                     
-                    // حفظ في قاعدة البيانات
                     userRef.set({
                         name: displayName,
                         avatar: photoURL || '👤',
@@ -1894,7 +2045,6 @@
                     });
                 }
                 
-                // تحديث واجهة المستخدم
                 updateAuthUI({
                     uid,
                     displayName: gameState.playerName,
@@ -1906,8 +2056,66 @@
                 updateStatsDisplay();
             });
             
-            // تحميل لوحة المتصدرين
             loadLeaderboard();
+        }
+
+        // مراقبة حالة المصادقة
+        auth.onAuthStateChanged(user => {
+            if (user && !user.isAnonymous) {
+                // مستخدم مسجل دخول
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('startScreen').classList.remove('hidden');
+                
+                loadUserData(user.uid, user.displayName || 'مستخدم', user.photoURL);
+            } else if (user && user.isAnonymous) {
+                // مستخدم مجهول (زائر)
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('startScreen').classList.remove('hidden');
+                
+                loadUserData(user.uid, user.displayName || 'زائر', null);
+            } else {
+                // لا يوجد مستخدم - نتحقق من وجود جلسة محلية
+                if (!checkGuestSession()) {
+                    document.getElementById('authScreen').classList.remove('hidden');
+                    document.getElementById('startScreen').classList.add('hidden');
+                    document.getElementById('gameScreen').classList.add('hidden');
+                    
+                    updateAuthUI(null);
+                    resetStats();
+                }
+            }
+        });
+
+        function checkGuestSession() {
+            const guestMode = localStorage.getItem('guestMode');
+            const guestName = localStorage.getItem('guestName');
+            const localUserId = localStorage.getItem('localUserId');
+            
+            if (guestMode === 'true' && guestName && localUserId) {
+                // استعادة جلسة الزائر
+                gameState.localMode = true;
+                gameState.userId = localUserId;
+                gameState.playerName = guestName;
+                loadLocalStats();
+                
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('startScreen').classList.remove('hidden');
+                
+                updateAuthUI({
+                    uid: localUserId,
+                    displayName: guestName,
+                    photoURL: null,
+                    isLocal: true
+                });
+                
+                gameState.players[0].name = guestName;
+                updatePlayerDisplay();
+                updateStatsDisplay();
+                
+                showToast(`👋 مرحبا بعودتك ${guestName}`, 'success');
+                return true;
+            }
+            return false;
         }
 
         function updateAuthUI(user) {
@@ -1917,19 +2125,61 @@
             
             if (user) {
                 userInfo.style.display = 'flex';
-                if (user.photoURL) {
-                    userAvatar.innerHTML = `<img src="${user.photoURL}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+                
+                if (user.isLocal) {
+                    userAvatar.innerHTML = '⚡';
+                    userDisplayName.innerHTML = user.displayName + ' <span class="guest-indicator">زائر</span>';
+                    
+                    const logoutBtn = document.querySelector('.logout-btn');
+                    if (logoutBtn) {
+                        logoutBtn.textContent = 'خروج';
+                    }
                 } else {
-                    userAvatar.innerHTML = '👤';
+                    if (user.photoURL) {
+                        userAvatar.innerHTML = `<img src="${user.photoURL}" alt="avatar">`;
+                    } else {
+                        userAvatar.innerHTML = '👤';
+                    }
+                    userDisplayName.textContent = user.displayName;
                 }
-                userDisplayName.textContent = user.displayName;
             } else {
                 userInfo.style.display = 'none';
             }
         }
 
+        function logout() {
+            if (gameState.localMode) {
+                // تنظيف البيانات المحلية
+                localStorage.removeItem('guestMode');
+                localStorage.removeItem('guestName');
+                localStorage.removeItem('localUserId');
+                gameState.localMode = false;
+                
+                showToast('تم الخروج من وضع الزائر', 'info');
+                updateAuthUI(null);
+                resetStats();
+                
+                document.getElementById('authScreen').classList.remove('hidden');
+                document.getElementById('startScreen').classList.add('hidden');
+            } else {
+                auth.signOut()
+                    .then(() => {
+                        showToast('تم تسجيل الخروج', 'info');
+                        updateAuthUI(null);
+                        resetStats();
+                        
+                        document.getElementById('authScreen').classList.remove('hidden');
+                        document.getElementById('startScreen').classList.add('hidden');
+                    })
+                    .catch(error => {
+                        console.error('خطأ في تسجيل الخروج:', error);
+                    });
+            }
+        }
+
         function resetStats() {
             gameState.userId = null;
+            gameState.localMode = false;
             gameState.playerName = localStorage.getItem('playerName') || 'لاعب';
             gameState.stats = {
                 games: 0,
@@ -1940,7 +2190,28 @@
             updatePlayerDisplay();
         }
 
+        function saveUserStats() {
+            if (gameState.localMode) {
+                saveGuestStats();
+            } else if (gameState.userId) {
+                const userRef = database.ref('users/' + gameState.userId);
+                userRef.update({
+                    name: gameState.playerName,
+                    stats: gameState.stats,
+                    lastPlayed: Date.now()
+                });
+                
+                loadLeaderboard();
+            }
+        }
+
         function loadLeaderboard() {
+            if (gameState.localMode) {
+                // عرض إحصائيات محلية
+                displayLocalLeaderboard();
+                return;
+            }
+            
             const leaderboardRef = database.ref('users').orderByChild('stats/wins').limitToLast(10);
             
             leaderboardRef.on('value', snapshot => {
@@ -1957,12 +2228,35 @@
                     }
                 });
                 
-                // ترتيب تنازلي حسب عدد مرات الفوز
                 leaderboard.sort((a, b) => b.wins - a.wins);
-                
-                // عرض أفضل 10
                 displayLeaderboard(leaderboard.slice(0, 10));
             });
+        }
+
+        function displayLocalLeaderboard() {
+            const leaderboardList = document.getElementById('leaderboardList');
+            const wins = gameState.stats.wins || 0;
+            const fastest = gameState.stats.fastestWin || '--';
+            
+            leaderboardList.innerHTML = `
+                <div class="leaderboard-item">
+                    <div class="leaderboard-rank">1</div>
+                    <div class="leaderboard-avatar">⚡</div>
+                    <div class="leaderboard-name">${gameState.playerName} (محلي)</div>
+                    <div class="leaderboard-stats">
+                        <span class="leaderboard-stat">🏆 ${wins}</span>
+                        <span class="leaderboard-stat">⚡ ${fastest}</span>
+                    </div>
+                </div>
+                <div class="leaderboard-item">
+                    <div class="leaderboard-rank">2</div>
+                    <div class="leaderboard-avatar">👤</div>
+                    <div class="leaderboard-name">سجل شخصي</div>
+                    <div class="leaderboard-stats">
+                        <span class="leaderboard-stat">🎯 استمر</span>
+                    </div>
+                </div>
+            `;
         }
 
         function displayLeaderboard(players) {
@@ -1995,134 +2289,14 @@
             `).join('');
         }
 
-        function saveUserStats() {
-            if (!gameState.userId) return;
-            
-            const userRef = database.ref('users/' + gameState.userId);
-            userRef.update({
-                name: gameState.playerName,
-                stats: gameState.stats,
-                lastPlayed: Date.now()
-            });
-            
-            // تحديث لوحة المتصدرين
-            loadLeaderboard();
-        }
-
-        // ==================== قوائم JSON - تعديل ليكون 4 مجموعات فقط ====================
-        const categories = {
-            fruits: {
-                name: 'فواكه',
-                icon: '🍎',
-                items: [
-                    { emoji: '🍎', name: 'تفاح' },
-                    { emoji: '🍌', name: 'موز' },
-                    { emoji: '🍊', name: 'برتقال' },
-                    { emoji: '🍇', name: 'عنب' }
-                ]
-            },
-            vegetables: {
-                name: 'خضروات',
-                icon: '🥕',
-                items: [
-                    { emoji: '🥕', name: 'جزر' },
-                    { emoji: '🥦', name: 'بروكلي' },
-                    { emoji: '🍅', name: 'طماطم' },
-                    { emoji: '🥒', name: 'خيار' }
-                ]
-            },
-            animals: {
-                name: 'حيوانات',
-                icon: '🦁',
-                items: [
-                    { emoji: '🦁', name: 'أسد' },
-                    { emoji: '🐯', name: 'نمر' },
-                    { emoji: '🐘', name: 'فيل' },
-                    { emoji: '🦒', name: 'زرافة' }
-                ]
-            },
-            birds: {
-                name: 'طيور',
-                icon: '🐦',
-                items: [
-                    { emoji: '🐦', name: 'عصفور' },
-                    { emoji: '🦅', name: 'نسر' },
-                    { emoji: '🦉', name: 'بومة' },
-                    { emoji: '🐧', name: 'بطريق' }
-                ]
-            },
-            capitals: {
-                name: 'عواصم',
-                icon: '🏛️',
-                items: [
-                    { emoji: '🇸🇦', name: 'الرياض' },
-                    { emoji: '🇪🇬', name: 'القاهرة' },
-                    { emoji: '🇦🇪', name: 'أبوظبي' },
-                    { emoji: '🇺🇸', name: 'واشنطن' }
-                ]
-            }
-        };
-
-        // ==================== بيانات اللعبة ====================
-        const gameState = {
-            userId: null,
-            playerName: localStorage.getItem('playerName') || 'لاعب',
-            currentCategory: 'fruits',
-            currentRound: 1,
-            players: [
-                { id: 'player1', name: '', avatar: '👤', isCurrent: true, wins: 0 },
-                { id: 'player2', name: 'محمد', avatar: '👨', isCurrent: false, wins: 0 },
-                { id: 'player3', name: 'عبدالقادر', avatar: '👦', isCurrent: false, wins: 0 },
-                { id: 'player4', name: 'أسماء', avatar: '👧', isCurrent: false, wins: 0 }
-            ],
-            currentPlayerIndex: 0,
-            cards: {},
-            gameActive: false,
-            timerInterval: null,
-            timeLeft: 60,
-            stats: {
-                games: 0,
-                wins: 0,
-                fastestWin: null
-            },
-            lastAction: 0
-        };
-
-        // ==================== نظام الصوت ====================
-        function playSound(type) {
-            try {
-                console.log(`🔊 ${type}`);
-            } catch (e) {}
-        }
-
-        // ==================== اختيار الفئة ====================
-        function selectCategory(category) {
-            gameState.currentCategory = category;
-            
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.querySelector(`[data-category="${category}"]`).classList.add('active');
-            
-            playSound('click');
-            showToast(`📚 تم اختيار: ${categories[category].name}`, 'info');
-            
-            // تأثير حركي للزر المختار
-            const btn = document.querySelector(`[data-category="${category}"]`);
-            btn.style.transform = 'scale(1.1)';
-            setTimeout(() => {
-                btn.style.transform = '';
-            }, 200);
-        }
-
-        // ==================== التهيئة ====================
+        // ==================== دوال اللعبة ====================
         function init() {
             gameState.players[0].name = gameState.playerName;
             updatePlayerDisplay();
             updateStatsDisplay();
             
-            // تحميل لوحة المتصدرين
-            loadLeaderboard();
+            // التحقق من جلسة الزائر
+            checkGuestSession();
             
             function setHeight() {
                 const vh = window.innerHeight * 0.01;
@@ -2142,6 +2316,7 @@
 
         function updatePlayerDisplay() {
             document.getElementById('playerName').textContent = gameState.playerName;
+            document.getElementById('playerAvatar').textContent = gameState.localMode ? '⚡' : '👤';
         }
 
         function editName() {
@@ -2152,8 +2327,9 @@
                 localStorage.setItem('playerName', gameState.playerName);
                 updatePlayerDisplay();
                 
-                // حفظ الاسم الجديد في Firebase إذا كان المستخدم مسجل دخول
-                if (gameState.userId) {
+                if (gameState.localMode) {
+                    localStorage.setItem('guestName', gameState.playerName);
+                } else if (gameState.userId) {
                     database.ref('users/' + gameState.userId).update({
                         name: gameState.playerName
                     });
@@ -2164,7 +2340,18 @@
             }
         }
 
-        // ==================== دوال اللعبة المعدلة ====================
+        function selectCategory(category) {
+            gameState.currentCategory = category;
+            
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-category="${category}"]`).classList.add('active');
+            
+            playSound('click');
+            showToast(`📚 تم اختيار: ${categories[category].name}`, 'info');
+        }
+
         function startGame() {
             playSound('click');
             
@@ -2180,22 +2367,17 @@
             gameState.gameActive = true;
             gameState.stats.games++;
             
-            // حفظ الإحصائيات إذا كان المستخدم مسجل دخول
-            if (gameState.userId) {
-                saveUserStats();
-            }
+            saveUserStats();
+            updateStatsDisplay();
             
             initializeRound();
-            updateStatsDisplay();
             showToast(`🎮 بدأت اللعبة - ${category.name}`, 'success');
         }
 
         function initializeRound() {
-            // إنشاء 16 كارت (4 مجموعات × 4 كروت)
             const deck = createDeck();
             const shuffled = shuffleArray([...deck]);
             
-            // توزيع 4 كروت لكل لاعب
             gameState.players.forEach((player, index) => {
                 const startIdx = index * 4;
                 gameState.cards[player.id] = shuffled.slice(startIdx, startIdx + 4);
@@ -2210,7 +2392,6 @@
             const deck = [];
             const category = categories[gameState.currentCategory];
             
-            // كل صنف يتكرر 4 مرات (4 كروت متشابهة)
             category.items.forEach((item) => {
                 for (let i = 0; i < 4; i++) {
                     deck.push({
@@ -2222,7 +2403,7 @@
                 }
             });
             
-            return deck; // 16 كارت (4×4)
+            return deck;
         }
 
         function shuffleArray(array) {
@@ -2233,7 +2414,6 @@
             return array;
         }
 
-        // ==================== تحديث العرض مع تأثيرات ====================
         function updateDisplay() {
             updatePlayersProgress();
             displayMyCards();
@@ -2309,7 +2489,6 @@
                 `;
                 container.appendChild(cardEl);
                 
-                // تأثير ظهور متأخر
                 setTimeout(() => {
                     cardEl.style.opacity = '1';
                 }, index * 100);
@@ -2345,7 +2524,6 @@
             }
         }
 
-        // ==================== نظام التبادل بين اللاعبين ====================
         function exchangeCard(index, element) {
             if (!gameState.gameActive) {
                 showToast('اللعبة غير نشطة', 'warning');
@@ -2359,10 +2537,8 @@
 
             playSound('exchange');
             
-            // تأثيرات متعددة للبطاقة
             element.classList.add('exchanging', 'shake-card');
             
-            // تأثير اهتزاز للبطاقات المجاورة
             const allCards = document.querySelectorAll('.card-modern');
             allCards.forEach((card, i) => {
                 if (i !== index) {
@@ -2377,27 +2553,22 @@
 
             const myCards = gameState.cards['player1'];
             
-            // اختيار بطاقة عشوائية من لاعب آخر
             const otherPlayers = gameState.players.filter(p => p.id !== 'player1');
             const randomPlayer = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
             const otherPlayerCards = gameState.cards[randomPlayer.id];
             const randomOtherIndex = Math.floor(Math.random() * otherPlayerCards.length);
             
-            // تبادل البطاقات
             const myOldCard = myCards[index];
             const otherOldCard = otherPlayerCards[randomOtherIndex];
             
-            // التبادل
             myCards[index] = otherOldCard;
             otherPlayerCards[randomOtherIndex] = myOldCard;
             
-            // تحديث مع تأثيرات
             setTimeout(() => {
                 displayMyCards();
                 updatePlayersProgress();
                 checkWinButton();
                 
-                // تأثير توهج للبطاقة الجديدة
                 const newCardElement = document.querySelectorAll('.card-modern')[index];
                 newCardElement.classList.add('new-card');
                 setTimeout(() => newCardElement.classList.remove('new-card'), 500);
@@ -2417,7 +2588,6 @@
             if (currentPlayer.id !== 'player1') {
                 showToast(`🔵 دور ${currentPlayer.name}`, 'info');
                 
-                // تأثير حركي
                 const progressElements = document.querySelectorAll('.player-progress-modern');
                 progressElements[gameState.currentPlayerIndex].style.transform = 'scale(1.1)';
                 setTimeout(() => {
@@ -2434,13 +2604,11 @@
             const computerCards = gameState.cards[playerId];
             const randomIndex = Math.floor(Math.random() * computerCards.length);
             
-            // الكمبيوتر يتبادل مع لاعب عشوائي آخر
             const otherPlayers = gameState.players.filter(p => p.id !== playerId);
             const randomPlayer = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
             const otherPlayerCards = gameState.cards[randomPlayer.id];
             const randomOtherIndex = Math.floor(Math.random() * otherPlayerCards.length);
             
-            // تبادل بطاقات الكمبيوتر
             const computerOldCard = computerCards[randomIndex];
             const otherOldCard = otherPlayerCards[randomOtherIndex];
             
@@ -2457,12 +2625,10 @@
             }
         }
 
-        // ==================== الفوز مع تأثيرات احتفالية ====================
         function claimWin() {
             if (!gameState.gameActive) return;
             playSound('win');
             
-            // تأثير احتفالي للبطاقات
             const cards = document.querySelectorAll('.card-modern');
             cards.forEach(card => {
                 card.classList.add('winning-card', 'celebrate');
@@ -2486,11 +2652,7 @@
                     gameState.stats.fastestWin = winTime;
                 }
                 
-                // حفظ الإحصائيات إذا كان المستخدم مسجل دخول
-                if (gameState.userId) {
-                    saveUserStats();
-                }
-                
+                saveUserStats();
                 updateStatsDisplay();
             }
 
@@ -2507,7 +2669,6 @@
             launchConfetti();
         }
 
-        // ==================== المؤقت ====================
         function startTimer(seconds) {
             gameState.timeLeft = seconds;
             const timerEl = document.getElementById('timer');
@@ -2521,7 +2682,6 @@
                 if (gameState.timeLeft <= 10) {
                     timerEl.classList.add('warning');
                     
-                    // تأثير اهتزاز للمؤقت
                     timerEl.style.transform = 'scale(1.2)';
                     setTimeout(() => timerEl.style.transform = '', 200);
                     
@@ -2568,7 +2728,6 @@
             }
         }
 
-        // ==================== الجولات ====================
         function nextRound() {
             playSound('click');
             document.getElementById('winnerModal').classList.remove('show');
@@ -2593,7 +2752,6 @@
             gameState.gameActive = false;
         }
 
-        // ==================== المؤثرات ====================
         function showToast(message, type = 'info') {
             const existingToast = document.querySelector('.toast-modern');
             if (existingToast) existingToast.remove();
@@ -2641,64 +2799,26 @@
             setTimeout(() => confettiContainer.remove(), 4000);
         }
 
-               function showInstructions() {
+        function showInstructions() {
             playSound('click');
             showToast('🎯 الهدف: جمع 4 كروت متشابهة - التبادل يتم مع اللاعبين الآخرين', 'info');
         }
 
-        // ==================== تشغيل اللعبة ====================
-        // دالة للتحكم في دور الكمبيوتر
-        setInterval(() => {
-            if (!gameState.gameActive) return;
-            
-            const currentPlayer = gameState.players[gameState.currentPlayerIndex];
-            if (currentPlayer.id !== 'player1') {
-                computerPlay(currentPlayer.id);
-            }
-        }, 3500); // زيادة الوقت قليلاً ليكون أكثر واقعية
-
-        // ==================== منع القوائم الافتراضية ====================
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.addEventListener('selectstart', e => e.preventDefault());
-
-        // تهيئة اللعبة
-        init();
-
-        // دالة إضافية لإعادة تعيين اللعبة بالكامل
-        function resetGame() {
-            if (confirm('هل أنت متأكد من إعادة تعيين اللعبة؟')) {
-                gameState.cards = {};
-                gameState.currentRound = 1;
-                gameState.currentPlayerIndex = 0;
-                gameState.gameActive = false;
-                gameState.stats = {
-                    games: 0,
-                    wins: 0,
-                    fastestWin: null
-                };
-                
-                if (gameState.userId) {
-                    saveUserStats();
-                }
-                
-                updateStatsDisplay();
-                showToast('🔄 تم إعادة تعيين اللعبة', 'info');
-                
-                // العودة للشاشة الرئيسية
-                endGame();
-            }
+        function playSound(type) {
+            try {
+                console.log(`🔊 ${type}`);
+            } catch (e) {}
         }
 
-        // دالة لمشاركة النتيجة
         function shareResult() {
             if (!gameState.stats.wins && !gameState.stats.games) {
                 showToast('لا توجد نتائج للمشاركة بعد', 'warning');
                 return;
             }
             
-            const text = `🎮 لعبة الكلمات الأربعة\n🏆 فوز: ${gameState.stats.wins}\n🎯 ألعاب: ${gameState.stats.games}\n⚡ أسرع فوز: ${gameState.stats.fastestWin ? gameState.stats.fastestWin + 'ث' : '--'}`;
+            const mode = gameState.localMode ? '(وضع زائر)' : '';
+            const text = `🎮 لعبة الكلمات الأربعة ${mode}\n🏆 فوز: ${gameState.stats.wins}\n🎯 ألعاب: ${gameState.stats.games}\n⚡ أسرع فوز: ${gameState.stats.fastestWin ? gameState.stats.fastestWin + 'ث' : '--'}`;
             
-            // محاولة استخدام Web Share API
             if (navigator.share) {
                 navigator.share({
                     title: 'نتيجتي في لعبة الكلمات الأربعة',
@@ -2719,86 +2839,22 @@
             });
         }
 
-        // دالة لتشغيل الموسيقى (اختياري)
-        function toggleMusic() {
-            // يمكن إضافة موسيقى خلفية هنا
-            showToast('🎵 قريباً...', 'info');
-        }
+        // ==================== منع القوائم الافتراضية ====================
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('selectstart', e => e.preventDefault());
 
-        // دالة لتغيير اللغة (للإصدارات المستقبلية)
-        function toggleLanguage() {
-            showToast('🌐 قريباً...', 'info');
-        }
+        // تهيئة اللعبة
+        init();
 
-        // دالة لحفظ اللعبة مؤقتاً
-        function saveGameProgress() {
-            if (!gameState.gameActive) {
-                showToast('لا توجد لعبة نشطة', 'warning');
-                return;
-            }
+        // دورة الكمبيوتر التلقائية
+        setInterval(() => {
+            if (!gameState.gameActive) return;
             
-            const progress = {
-                cards: gameState.cards,
-                currentRound: gameState.currentRound,
-                currentPlayerIndex: gameState.currentPlayerIndex,
-                timeLeft: gameState.timeLeft,
-                category: gameState.currentCategory
-            };
-            
-            localStorage.setItem('savedGame', JSON.stringify(progress));
-            showToast('💾 تم حفظ التقدم', 'success');
-        }
-
-        // دالة لتحميل اللعبة المحفوظة
-        function loadSavedGame() {
-            const saved = localStorage.getItem('savedGame');
-            if (!saved) {
-                showToast('لا توجد لعبة محفوظة', 'warning');
-                return;
+            const currentPlayer = gameState.players[gameState.currentPlayerIndex];
+            if (currentPlayer.id !== 'player1') {
+                computerPlay(currentPlayer.id);
             }
-            
-            try {
-                const progress = JSON.parse(saved);
-                gameState.currentCategory = progress.category;
-                gameState.currentRound = progress.currentRound;
-                gameState.currentPlayerIndex = progress.currentPlayerIndex;
-                gameState.cards = progress.cards;
-                gameState.timeLeft = progress.timeLeft;
-                gameState.gameActive = true;
-                
-                // تحديث الواجهة
-                document.getElementById('startScreen').classList.add('hidden');
-                document.getElementById('gameScreen').classList.remove('hidden');
-                
-                const category = categories[gameState.currentCategory];
-                document.getElementById('categoryIcon').textContent = category.icon;
-                document.getElementById('categoryName').textContent = category.name;
-                
-                updateDisplay();
-                startTimer(gameState.timeLeft);
-                updateRoundDisplay();
-                
-                showToast('✅ تم تحميل اللعبة', 'success');
-            } catch (e) {
-                showToast('❌ فشل تحميل اللعبة', 'error');
-            }
-        }
+        }, 3500);
     </script>
-
-    <!-- إضافة أزرار إضافية في شاشة البداية (اختياري) -->
-    <div style="display: none;"> <!-- هذه الأزرار يمكن إضافتها للواجهة إذا أردت -->
-        <button class="btn-modern btn-secondary-modern" onclick="resetGame()">
-            <span>🔄</span> إعادة تعيين
-        </button>
-        <button class="btn-modern btn-secondary-modern" onclick="shareResult()">
-            <span>📤</span> مشاركة
-        </button>
-        <button class="btn-modern btn-secondary-modern" onclick="saveGameProgress()">
-            <span>💾</span> حفظ
-        </button>
-        <button class="btn-modern btn-secondary-modern" onclick="loadSavedGame()">
-            <span>📂</span> تحميل
-        </button>
-    </div>
 </body>
 </html>
