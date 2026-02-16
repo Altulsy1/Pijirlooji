@@ -2,160 +2,1376 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>لعبة الفواكه الأربعة - محلي P2P</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#6C5CE7">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>🍎 فواكه 4 - لعبة البطاقات المذهلة</title>
+    
+    <style>
+        /* ===== المتغيرات والثيمات ===== */
+        :root {
+            --primary: #6C5CE7;
+            --primary-dark: #5649C0;
+            --secondary: #00D2FF;
+            --success: #00B894;
+            --danger: #FF7675;
+            --warning: #FDCB6E;
+            --dark: #2D3436;
+            --light: #F5F6FA;
+            --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+            --gradient-success: linear-gradient(135deg, var(--success), var(--secondary));
+            --gradient-danger: linear-gradient(135deg, var(--danger), #FF6B6B);
+            --shadow: 0 10px 30px rgba(108, 92, 231, 0.2);
+            --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.2);
+            --radius: 20px;
+            --radius-sm: 12px;
+            --transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Cairo', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 500px;
+            height: 100vh;
+            height: -webkit-fill-available;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            position: relative;
+            overflow-y: auto;
+            overflow-x: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.3);
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .game-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* ===== الشاشات ===== */
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            min-height: 100%;
+            padding: 20px;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: all;
+            background: inherit;
+        }
+
+        .screen.hidden {
+            opacity: 0;
+            transform: translateX(100%);
+            pointer-events: none;
+        }
+
+        /* ===== شاشة البداية ===== */
+        .start-screen {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .floating-fruits {
+            position: relative;
+            width: 100%;
+            height: 150px;
+            margin: 20px 0;
+        }
+
+        .floating-fruit {
+            position: absolute;
+            font-size: 3rem;
+            animation: float 3s infinite ease-in-out;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2));
+        }
+
+        .floating-fruit:nth-child(1) { left: 10%; animation-delay: 0s; }
+        .floating-fruit:nth-child(2) { left: 35%; animation-delay: 0.5s; }
+        .floating-fruit:nth-child(3) { left: 60%; animation-delay: 1s; }
+        .floating-fruit:nth-child(4) { left: 80%; animation-delay: 1.5s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(10deg); }
+        }
+
+        .game-title {
+            font-size: clamp(2.5rem, 15vw, 4rem);
+            font-weight: 900;
+            margin: 10px 0;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            letter-spacing: 2px;
+            animation: slideDown 0.8s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .player-card-modern {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 20px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 100%;
+            animation: slideUp 0.8s ease 0.2s both;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .avatar-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fff, #f0f0f0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 3px solid white;
+            transition: var(--transition);
+        }
+
+        .avatar-circle:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .player-info-modern {
+            flex: 1;
+        }
+
+        .player-name-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .player-name-modern {
+            font-size: 1.8rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .edit-name-modern {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .edit-name-modern:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .menu-buttons-modern {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 30px 0;
+            animation: slideUp 0.8s ease 0.4s both;
+        }
+
+        .btn-modern {
+            padding: 18px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-modern::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-modern:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary-modern {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary-modern:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .btn-secondary-modern {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(5px);
+        }
+
+        .btn-secondary-modern:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-3px);
+        }
+
+        .stats-modern {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+            animation: fadeIn 1s ease 0.6s both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .stat-item-modern {
+            text-align: center;
+        }
+
+        .stat-value-modern {
+            display: block;
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .stat-label-modern {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* ===== شاشة اللعب ===== */
+        .game-screen {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 0;
+        }
+
+        .game-header-modern {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .round-badge-modern {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 30px;
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .timer-modern {
+            background: white;
+            color: var(--primary);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+
+        .timer-modern.warning {
+            background: var(--danger);
+            color: white;
+            animation: pulse 1s infinite;
+            transform: scale(1.1);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        .players-progress-modern {
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            background: rgba(255,255,255,0.1);
+            margin: 15px;
+            border-radius: 50px;
+            backdrop-filter: blur(5px);
+        }
+
+        .players-progress-modern::-webkit-scrollbar {
+            display: none;
+        }
+
+        .player-progress-modern {
+            min-width: 90px;
+            text-align: center;
+            background: rgba(255,255,255,0.15);
+            padding: 12px 5px;
+            border-radius: 30px;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .player-progress-modern.active {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .progress-avatar-modern {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fff, #f0f0f0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin: 0 auto 8px;
+            border: 2px solid white;
+        }
+
+        .progress-name-modern {
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .progress-bar-modern {
+            height: 6px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+
+        .progress-fill-modern {
+            height: 100%;
+            background: linear-gradient(90deg, #fff, var(--secondary));
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 3px;
+        }
+
+        .progress-count-modern {
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .cards-grid-modern {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding: 15px;
+            margin-bottom: 80px;
+        }
+
+        .card-modern {
+            background: white;
+            border-radius: 25px;
+            padding: 25px 10px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 3px solid transparent;
+            aspect-ratio: 2/3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            animation: cardAppear 0.5s ease;
+        }
+
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: scale(0) rotate(-180deg);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) rotate(0);
+            }
+        }
+
+        .card-modern::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .card-modern:active::before {
+            opacity: 1;
+        }
+
+        .card-modern:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(108, 92, 231, 0.4);
+        }
+
+        .card-modern.exchanging {
+            animation: exchangeCard 0.6s ease;
+        }
+
+        @keyframes exchangeCard {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(0.8) rotate(10deg); }
+        }
+
+        .card-emoji-modern {
+            font-size: clamp(3rem, 10vw, 4.5rem);
+            margin-bottom: 10px;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1));
+        }
+
+        .card-name-modern {
+            font-size: clamp(0.9rem, 3vw, 1.2rem);
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .win-button-modern {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 18px;
+            background: var(--gradient-danger);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 10px 30px rgba(255, 71, 87, 0.4);
+            z-index: 100;
+        }
+
+        .win-button-modern:disabled {
+            opacity: 0.3;
+            transform: scale(0.95);
+            pointer-events: none;
+            filter: grayscale(1);
+        }
+
+        .win-button-modern:not(:disabled):hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(255, 71, 87, 0.6);
+        }
+
+        .win-button-modern:not(:disabled):active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .win-button-modern.pulse {
+            animation: buttonPulse 1s infinite;
+        }
+
+        @keyframes buttonPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* ===== نافذة الفوز ===== */
+        .winner-modal-modern {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: white;
+            padding: 40px 20px;
+            border-radius: 40px;
+            text-align: center;
+            z-index: 1000;
+            width: 90%;
+            max-width: 380px;
+            box-shadow: 0 30px 70px rgba(0,0,0,0.3);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .winner-modal-modern.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .confetti {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 30px;
+            background: var(--primary);
+            top: -100px;
+            animation: confettiFall 3s linear infinite;
+        }
+
+        @keyframes confettiFall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+            }
+        }
+
+        .winner-avatar-modern {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            margin: 0 auto 20px;
+            border: 4px solid white;
+            box-shadow: var(--shadow-lg);
+            animation: winnerSpin 1s ease;
+        }
+
+        @keyframes winnerSpin {
+            from { transform: rotate(0deg) scale(0); }
+            to { transform: rotate(360deg) scale(1); }
+        }
+
+        .winner-title-modern {
+            font-size: 2.2rem;
+            color: var(--dark);
+            margin-bottom: 10px;
+            font-weight: 900;
+        }
+
+        .winner-time-modern {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 1.2rem;
+        }
+
+        .modal-buttons-modern {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-btn-modern {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1rem;
+        }
+
+        .modal-btn-primary-modern {
+            background: var(--gradient-success);
+            color: white;
+        }
+
+        .modal-btn-primary-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 184, 148, 0.4);
+        }
+
+        .modal-btn-secondary-modern {
+            background: #e0e0e0;
+            color: var(--dark);
+        }
+
+        .modal-btn-secondary-modern:hover {
+            background: #d0d0d0;
+            transform: translateY(-2px);
+        }
+
+        .overlay-modern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+            z-index: 999;
+            transition: opacity 0.3s;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .overlay-modern.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* ===== رسائل التنبيه ===== */
+        .toast-modern {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            padding: 15px 30px;
+            border-radius: 50px;
+            color: white;
+            font-weight: 600;
+            z-index: 2000;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            max-width: 90%;
+        }
+
+        .toast-modern.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast-modern.success {
+            background: linear-gradient(135deg, var(--success), #00CEC9);
+        }
+
+        .toast-modern.error {
+            background: linear-gradient(135deg, var(--danger), #FF6B6B);
+        }
+
+        .toast-modern.info {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        .toast-modern.warning {
+            background: linear-gradient(135deg, var(--warning), #FFA502);
+        }
+
+        /* ===== أنيميشن إضافي ===== */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .shake {
+            animation: shake 0.5s ease;
+        }
+
+        /* ===== تحسينات للموبايل ===== */
+        @media (max-width: 380px) {
+            .card-emoji-modern {
+                font-size: 2.5rem;
+            }
+            
+            .card-name-modern {
+                font-size: 0.8rem;
+            }
+            
+            .player-name-modern {
+                font-size: 1.4rem;
+            }
+            
+            .avatar-circle {
+                width: 60px;
+                height: 60px;
+                font-size: 2.2rem;
+            }
+        }
+
+        /* ===== دعم الشاشات الكبيرة ===== */
+        @media (min-width: 768px) {
+            .game-container {
+                height: 95vh;
+                margin: 2.5vh auto;
+                border-radius: 40px;
+            }
+        }
+    </style>
 </head>
 <body>
- <!-- نفس الـ HTML السابق مع إضافة هذا العنصر للتشغيل المحلي -->
-    <div id="local-mode-badge" style="position: fixed; bottom: 10px; left: 10px; background: #ff6b6b; color: white; padding: 5px 10px; border-radius: 20px; font-size: 12px; z-index: 9999;">
-        ⚡ وضع التجربة المحلية
-    </div>
-    
-    <!-- جميع العناصر الأخرى كما هي -->
-    <!-- ... -->
-    
-    <!-- تغيير ترتيب تحميل المكتبات -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-    <!-- استخدام نسخة أكثر استقراراً من PeerJS -->
-    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.4.7/dist/peerjs.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
-    
-
-    <div id="splash-screen" class="screen">
-        <div class="splash-content">
-            <h1>🍎 الفواكه الأربعة 🍌</h1>
-            <p>العب مع أصدقائك في نفس الغرفة</p>
-            <div class="loading-spinner"></div>
-            <p class="small">جاري تحميل اللعبة...</p>
-        </div>
-    </div>
-
-    <div id="main-menu" class="screen hidden">
-        <div class="menu-container">
-            <h1>🍇 الفواكه الأربعة 🍊</h1>
-            <div class="menu-buttons">
-                <button id="create-room-btn" class="primary-btn">➕ إنشاء غرفة جديدة</button>
-                <button id="join-room-btn" class="secondary-btn">🔍 انضم إلى غرفة</button>
-                <button id="single-player-btn" class="outline-btn">🎮 العب ضد الكمبيوتر</button>
+    <div class="game-container">
+        <!-- شاشة البداية -->
+        <div id="startScreen" class="screen start-screen">
+            <div class="floating-fruits">
+                <div class="floating-fruit">🍎</div>
+                <div class="floating-fruit">🍌</div>
+                <div class="floating-fruit">🍊</div>
+                <div class="floating-fruit">🍇</div>
             </div>
-            <div class="instructions">
-                <h3>كيف تلعب؟</h3>
-                <p>اجمع 4 بطاقات من نفس النوع قبل الآخرين!</p>
-                <p>عند اكتمال مجموعتك، اضغط على زر "تم" بسرعة</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="lobby-screen" class="screen hidden">
-        <div class="lobby-container">
-            <h2>غرفة الانتظار</h2>
-            <div class="room-info">
-                <p>🔑 رمز الغرفة: <span id="room-code">ABCD</span></p>
-                <p>اللاعبون: <span id="player-count">1/4</span></p>
-                <div id="qr-code-container">
-                    <canvas id="qr-code"></canvas>
-                    <p class="small">امسح للانضمام السريع</p>
+            
+            <h1 class="game-title">فواكه ٤</h1>
+            
+            <div class="player-card-modern">
+                <div class="avatar-circle" id="playerAvatar">👤</div>
+                <div class="player-info-modern">
+                    <div class="player-name-label">مرحباً</div>
+                    <div class="player-name-modern" id="playerName">لاعب</div>
+                    <button class="edit-name-modern" onclick="editName()">
+                        <span>✏️</span> تعديل
+                    </button>
                 </div>
             </div>
-            <div class="players-list" id="players-list">
-                <div class="player-item host">👑 أنت (المضيف)</div>
-                <div class="player-item empty">⬜ في انتظار لاعبين...</div>
+
+            <div class="menu-buttons-modern">
+                <button class="btn-modern btn-primary-modern" onclick="startGame()">
+                    <span>🎮</span> بدء اللعبة
+                </button>
+                <button class="btn-modern btn-secondary-modern" onclick="showInstructions()">
+                    <span>📚</span> شرح اللعبة
+                </button>
             </div>
-            <div class="lobby-controls">
-                <button id="start-game-btn" class="primary-btn" disabled>ابدأ اللعبة (2 لاعبين على الأقل)</button>
-                <button id="back-from-lobby-btn" class="text-btn">↩️ رجوع</button>
-            </div>
-            <div class="invite-link">
-                <p>أو أرسل هذا الرابط:</p>
-                <div class="link-copy">
-                    <input type="text" id="invite-link" readonly>
-                    <button id="copy-link-btn">📋 نسخ</button>
+
+            <div class="stats-modern" id="stats">
+                <div class="stat-item-modern">
+                    <span class="stat-value-modern" id="gamesPlayed">0</span>
+                    <span class="stat-label-modern">الألعاب</span>
+                </div>
+                <div class="stat-item-modern">
+                    <span class="stat-value-modern" id="winsCount">0</span>
+                    <span class="stat-label-modern">الفوز</span>
+                </div>
+                <div class="stat-item-modern">
+                    <span class="stat-value-modern" id="fastestWin">--</span>
+                    <span class="stat-label-modern">الأسرع</span>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div id="game-screen" class="screen hidden">
-        <div class="game-header">
-            <div class="timer" id="game-timer">00:00</div>
-            <div class="category" id="game-category">الفواكه</div>
-            <button id="leave-game-btn" class="small-btn">🚪 خروج</button>
-        </div>
-        
-        <div class="players-status" id="players-status">
-            <!-- سيتم تعبئتها ديناميكياً -->
-        </div>
-        
-        <div class="my-hand" id="my-hand">
-            <h3>بطاقاتي <span id="cards-count">0/4</span></h3>
-            <div class="cards-container" id="cards-container">
-                <!-- البطاقات ستظهر هنا -->
-            </div>
-        </div>
-        
-        <div class="game-controls">
-            <button id="done-button" class="win-btn" disabled>🎯 تم! (4 من نفس النوع)</button>
-            <div class="action-log" id="action-log">
-                <p>⏳ في انتظار دورك...</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="join-screen" class="screen hidden">
-        <div class="join-container">
-            <h2>انضم إلى غرفة</h2>
-            <div class="qr-scanner">
-                <p>امسح رمز QR الخاص بالمضيف</p>
-                <div id="scanner-preview">
-                    <video id="qr-video"></video>
-                    <canvas id="qr-canvas" hidden></canvas>
+        <!-- شاشة اللعب -->
+        <div id="gameScreen" class="screen game-screen hidden">
+            <div class="game-header-modern">
+                <div class="round-badge-modern">
+                    <span>🏆</span>
+                    <span id="roundDisplay">الجولة 1</span>
                 </div>
-                <button id="scan-qr-btn" class="secondary-btn">📷 فتح الكاميرا</button>
+                <div class="timer-modern" id="timer">60</div>
             </div>
-            <div class="or-divider">أو</div>
-            <div class="manual-join">
-                <input type="text" id="room-code-input" placeholder="أدخل رمز الغرفة" maxlength="4">
-                <button id="join-with-code-btn" class="primary-btn">انضمام</button>
+
+            <div id="playersProgress" class="players-progress-modern">
+                <!-- تضاف هنا ديناميكياً -->
             </div>
-            <button id="back-to-menu-btn" class="text-btn">↩️ رجوع</button>
+
+            <div id="cardsContainer" class="cards-grid-modern">
+                <!-- تضاف البطاقات هنا ديناميكياً -->
+            </div>
+
+            <button id="winButton" class="win-button-modern" disabled onclick="claimWin()">
+                <span>🏆</span> لقد جمعت 4!
+            </button>
         </div>
     </div>
 
-    <div id="single-player-screen" class="screen hidden">
-        <div class="single-player-container">
-            <h2>العب ضد الكمبيوتر</h2>
-            <div class="difficulty-selector">
-                <button data-diff="easy" class="diff-btn selected">🌱 سهل</button>
-                <button data-diff="medium" class="diff-btn">⚡ متوسط</button>
-                <button data-diff="hard" class="diff-btn">🔥 صعب</button>
-            </div>
-            <button id="start-single-player" class="primary-btn">ابدأ اللعبة</button>
-            <button id="back-from-single" class="text-btn">↩️ رجوع</button>
+    <!-- نافذة الفوز -->
+    <div id="winnerModal" class="winner-modal-modern">
+        <div class="confetti" id="confetti"></div>
+        <div class="winner-avatar-modern" id="winnerAvatar">🏆</div>
+        <h2 class="winner-title-modern" id="winnerTitle">فائز!</h2>
+        <div class="winner-time-modern" id="winnerTime"></div>
+        <div class="modal-buttons-modern">
+            <button class="modal-btn-modern modal-btn-primary-modern" onclick="nextRound()">الجولة التالية</button>
+            <button class="modal-btn-modern modal-btn-secondary-modern" onclick="endGame()">قائمة رئيسية</button>
         </div>
     </div>
+    <div id="overlay" class="overlay-modern"></div>
 
-    <div id="result-modal" class="modal hidden">
-        <div class="modal-content">
-            <h2 id="result-title">🎉 فاز أحمد!</h2>
-            <p id="result-message">تمكن من جمع 4 تفاحات أولاً</p>
-            <button id="next-round-btn" class="primary-btn">الجولة التالية</button>
-            <button id="end-game-btn" class="text-btn">إنهاء اللعبة</button>
-        </div>
-    </div>
+    <script>
+        // ==================== بيانات اللعبة ====================
+        const gameState = {
+            playerName: localStorage.getItem('playerName') || 'لاعب',
+            currentRound: 1,
+            players: [
+                { id: 'player1', name: '', avatar: '👤', isCurrent: true, wins: 0 },
+                { id: 'player2', name: 'محمد', avatar: '👨', isCurrent: false, wins: 0 },
+                { id: 'player3', name: 'أحمد', avatar: '👦', isCurrent: false, wins: 0 },
+                { id: 'player4', name: 'فاطمة', avatar: '👧', isCurrent: false, wins: 0 }
+            ],
+            currentPlayerIndex: 0,
+            cards: {},
+            gameActive: false,
+            timerInterval: null,
+            timeLeft: 60,
+            fruits: ['🍎', '🍌', '🍊', '🍇', '🍓', '🍉', '🍒', '🍍'],
+            fruitNames: {
+                '🍎': 'تفاح', '🍌': 'موز', '🍊': 'برتقال',
+                '🍇': 'عنب', '🍓': 'فراولة', '🍉': 'بطيخ',
+                '🍒': 'كرز', '🍍': 'أناناس'
+            },
+            stats: {
+                games: 0,
+                wins: 0,
+                fastestWin: null,
+                roundTimes: []
+            },
+            lastAction: 0
+        };
 
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <script src="game.js"></script>
-    <!-- إضافة مكتبات إضافية -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <!-- إضافة مكتبة jsQR لمسح QR (اختياري) -->
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
-    
-     <!-- ملفات اللعبة -->
-    <script src="config.js"></script>
-    <script src="p2p-fallback.js"></script>
-    <script src="game-fixed.js"></script>
+        // ==================== التهيئة ====================
+        function init() {
+            loadStats();
+            gameState.players[0].name = gameState.playerName;
+            updatePlayerDisplay();
+            updateStatsDisplay();
+            createConfetti();
+        }
+
+        function loadStats() {
+            const saved = localStorage.getItem('fruitStats');
+            if (saved) {
+                gameState.stats = JSON.parse(saved);
+            }
+        }
+
+        function saveStats() {
+            localStorage.setItem('fruitStats', JSON.stringify(gameState.stats));
+        }
+
+        function updateStatsDisplay() {
+            document.getElementById('gamesPlayed').textContent = gameState.stats.games;
+            document.getElementById('winsCount').textContent = gameState.stats.wins;
+            document.getElementById('fastestWin').textContent = gameState.stats.fastestWin ? gameState.stats.fastestWin + 'ث' : '--';
+        }
+
+        function updatePlayerDisplay() {
+            document.getElementById('playerName').textContent = gameState.playerName;
+        }
+
+        function editName() {
+            const newName = prompt('أدخل اسمك الجديد', gameState.playerName);
+            if (newName && newName.trim()) {
+                gameState.playerName = newName.trim();
+                gameState.players[0].name = gameState.playerName;
+                localStorage.setItem('playerName', gameState.playerName);
+                updatePlayerDisplay();
+                showToast('✅ تم تحديث الاسم', 'success');
+            }
+        }
+
+        // ==================== بدء اللعبة ====================
+        function startGame() {
+            // تبديل الشاشات
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            
+            gameState.currentRound = 1;
+            gameState.currentPlayerIndex = 0;
+            gameState.gameActive = true;
+            gameState.stats.games++;
+            
+            initializeRound();
+            saveStats();
+            updateStatsDisplay();
+            
+            showToast('🎮 بدأت اللعبة!', 'success');
+            playSound('start');
+        }
+
+        function initializeRound() {
+            const deck = createDeck();
+            const shuffled = shuffleArray([...deck]);
+            
+            // توزيع البطاقات
+            gameState.players.forEach((player, index) => {
+                const startIdx = index * 4;
+                const endIdx = startIdx + 4;
+                gameState.cards[player.id] = shuffled.slice(startIdx, endIdx);
+            });
+
+            updateDisplay();
+            startTimer(60);
+            updateRoundDisplay();
+        }
+
+        function createDeck() {
+            const deck = [];
+            for (let i = 0; i < 8; i++) {
+                for (let j = 0; j < 4; j++) {
+                    deck.push({
+                        id: `card-${i}-${j}-${Date.now()}-${Math.random()}`,
+                        emoji: gameState.fruits[i],
+                        name: gameState.fruitNames[gameState.fruits[i]]
+                    });
+                }
+            }
+            return deck;
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // ==================== تحديث العرض ====================
+        function updateDisplay() {
+            updatePlayersProgress();
+            displayMyCards();
+            updateRoundDisplay();
+            checkWinButton();
+        }
+
+        function updatePlayersProgress() {
+            const container = document.getElementById('playersProgress');
+            container.innerHTML = '';
+
+            gameState.players.forEach((player, index) => {
+                const cards = gameState.cards[player.id] || [];
+                const maxSame = getMaxSameCards(cards);
+                const progress = (maxSame / 4) * 100;
+
+                const div = document.createElement('div');
+                div.className = `player-progress-modern ${index === gameState.currentPlayerIndex ? 'active' : ''}`;
+                div.onclick = () => {
+                    if (player.id !== 'player1') {
+                        showToast(`دور ${player.name}`, 'info');
+                    }
+                };
+                
+                div.innerHTML = `
+                    <div class="progress-avatar-modern">${player.avatar}</div>
+                    <div class="progress-name-modern">${player.name}</div>
+                    <div class="progress-bar-modern">
+                        <div class="progress-fill-modern" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="progress-count-modern">${maxSame}/4</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function displayMyCards() {
+            const container = document.getElementById('cardsContainer');
+            const myCards = gameState.cards['player1'] || [];
+
+            container.innerHTML = '';
+            myCards.forEach((card, index) => {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'card-modern';
+                cardEl.onclick = () => exchangeCard(index, cardEl);
+                cardEl.innerHTML = `
+                    <div class="card-emoji-modern">${card.emoji}</div>
+                    <div class="card-name-modern">${card.name}</div>
+                `;
+                container.appendChild(cardEl);
+            });
+        }
+
+        function getMaxSameCards(cards) {
+            if (!cards || cards.length === 0) return 0;
+            const counts = {};
+            cards.forEach(card => {
+                counts[card.emoji] = (counts[card.emoji] || 0) + 1;
+            });
+            return Math.max(...Object.values(counts));
+        }
+
+        function updateRoundDisplay() {
+            document.getElementById('roundDisplay').textContent = `الجولة ${gameState.currentRound}`;
+        }
+
+        function checkWinButton() {
+            const myCards = gameState.cards['player1'];
+            const maxSame = getMaxSameCards(myCards);
+            const winButton = document.getElementById('winButton');
+            
+            if (maxSame >= 4) {
+                winButton.disabled = false;
+                winButton.classList.add('pulse');
+            } else {
+                winButton.disabled = true;
+                winButton.classList.remove('pulse');
+            }
+        }
+
+        // ==================== تبادل البطاقات ====================
+        function exchangeCard(index, element) {
+            if (!gameState.gameActive) {
+                showToast('اللعبة غير نشطة', 'warning');
+                return;
+            }
+
+            if (Date.now() - gameState.lastAction < 500) {
+                return; // منع النقر السريع
+            }
+            gameState.lastAction = Date.now();
+
+            // أنيميشن التبادل
+            element.classList.add('exchanging');
+            setTimeout(() => element.classList.remove('exchanging'), 600);
+
+            const myCards = gameState.cards['player1'];
+            const deck = createDeck();
+            
+            const newCard = deck[Math.floor(Math.random() * deck.length)];
+            const oldCard = myCards[index];
+            
+            myCards[index] = newCard;
+            
+            setTimeout(() => {
+                displayMyCards();
+                updatePlayersProgress();
+                checkWinButton();
+            }, 300);
+            
+            showToast(`🔄 تم التبادل`, 'info');
+            playSound('exchange');
+            
+            // التحقق من الفوز بعد التبادل
+            if (getMaxSameCards(myCards) >= 4) {
+                checkWinButton();
+            }
+            
+            // دور اللاعب التالي
+            setTimeout(() => nextPlayer(), 600);
+        }
+
+        function nextPlayer() {
+            gameState.currentPlayerIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
+            updatePlayersProgress();
+            
+            const currentPlayer = gameState.players[gameState.currentPlayerIndex];
+            
+            if (currentPlayer.id !== 'player1') {
+                showToast(`🔵 دور ${currentPlayer.name}`, 'info');
+                setTimeout(() => computerPlay(currentPlayer.id), 1000);
+            }
+        }
+
+        function computerPlay(playerId) {
+            if (!gameState.gameActive) return;
+            
+            const computerCards = gameState.cards[playerId];
+            const randomIndex = Math.floor(Math.random() * computerCards.length);
+            
+            const deck = createDeck();
+            computerCards[randomIndex] = deck[Math.floor(Math.random() * deck.length)];
+            
+            updatePlayersProgress();
+            
+            // التحقق من فوز الكمبيوتر
+            const maxSame = getMaxSameCards(computerCards);
+            if (maxSame >= 4) {
+                handleWin(playerId);
+            } else {
+                nextPlayer();
+            }
+        }
+
+        // ==================== الفوز ====================
+        function claimWin() {
+            if (!gameState.gameActive) return;
+            handleWin('player1');
+        }
+
+        function handleWin(playerId) {
+            gameState.gameActive = false;
+            stopTimer();
+
+            const player = gameState.players.find(p => p.id === playerId);
+            const isMe = playerId === 'player1';
+            
+            if (isMe) {
+                gameState.stats.wins++;
+                const winTime = 60 - gameState.timeLeft;
+                if (!gameState.stats.fastestWin || winTime < gameState.stats.fastestWin) {
+                    gameState.stats.fastestWin = winTime;
+                }
+                saveStats();
+                updateStatsDisplay();
+            }
+
+            // تحديث إحصائيات الفائز
+            player.wins++;
+
+            // إظهار نافذة الفوز
+            document.getElementById('winnerAvatar').innerHTML = isMe ? '🏆' : player.avatar;
+            document.getElementById('winnerTitle').textContent = isMe ? '🎉 أنت الفائز!' : `🎉 ${player.name} فاز!`;
+            document.getElementById('winnerTime').textContent = `الزمن: ${60 - gameState.timeLeft} ثانية`;
+            
+            document.getElementById('winnerModal').classList.add('show');
+            document.getElementById('overlay').classList.add('show');
+            
+            showToast(isMe ? '🎉 مبروك الفوز!' : `😢 ${player.name} فاز!`, isMe ? 'success' : 'info');
+            launchConfetti();
+            playSound('win');
+        }
+
+        // ==================== المؤقت ====================
+        function startTimer(seconds) {
+            gameState.timeLeft = seconds;
+            const timerEl = document.getElementById('timer');
+            
+            stopTimer();
+            
+            gameState.timerInterval = setInterval(() => {
+                gameState.timeLeft--;
+                timerEl.textContent = gameState.timeLeft;
+                
+                if (gameState.timeLeft <= 10) {
+                    timerEl.classList.add('warning');
+                    if (gameState.timeLeft <= 3) {
+                        playSound('timer');
+                    }
+                }
+                
+                if (gameState.timeLeft <= 0) {
+                    endRound();
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+                gameState.timerInterval = null;
+            }
+            document.getElementById('timer').classList.remove('warning');
+        }
+
+        function endRound() {
+            stopTimer();
+            gameState.gameActive = false;
+            
+            // تحديد صاحب أكبر عدد
+            let maxCount = 0;
+            let winner = null;
+            
+            gameState.players.forEach(player => {
+                const cards = gameState.cards[player.id] || [];
+                const count = getMaxSameCards(cards);
+                if (count > maxCount) {
+                    maxCount = count;
+                    winner = player.id;
+                }
+            });
+            
+            if (winner) {
+                handleWin(winner);
+            } else {
+                showToast('⏱️ انتهى الوقت! لا فائز', 'warning');
+                setTimeout(() => nextRound(), 2000);
+            }
+        }
+
+        // ==================== الجولات ====================
+        function nextRound() {
+            document.getElementById('winnerModal').classList.remove('show');
+            document.getElementById('overlay').classList.remove('show');
+            
+            gameState.currentRound++;
+            gameState.currentPlayerIndex = 0;
+            gameState.gameActive = true;
+            
+            initializeRound();
+            showToast(`🎯 الجولة ${gameState.currentRound}`, 'info');
+        }
+
+        function endGame() {
+            document.getElementById('winnerModal').classList.remove('show');
+            document.getElementById('overlay').classList.remove('show');
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('startScreen').classList.remove('hidden');
+            
+            stopTimer();
+            gameState.gameActive = false;
+        }
+
+        // ==================== المؤثرات ====================
+        function showToast(message, type = 'info') {
+            const existingToast = document.querySelector('.toast-modern');
+            if (existingToast) existingToast.remove();
+
+            const toast = document.createElement('div');
+            toast.className = `toast-modern ${type}`;
+            
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            toast.innerHTML = `<span>${icons[type] || 'ℹ️'}</span> ${message}`;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function playSound(type) {
+            // في النسخة القادمة يمكن إضافة أصوات حقيقية
+            const sounds = {
+                start: '🎮',
+                win: '🏆',
+                exchange: '🔄',
+                timer: '⏰'
+            };
+            console.log(`🔊 ${sounds[type] || ''}`);
+        }
+
+        function launchConfetti() {
+            const confettiEl = document.getElementById('confetti');
+            confettiEl.innerHTML = '';
+            
+            for (let i = 0; i < 50; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.style.left = Math.random() * 100 + '%';
+                piece.style.animationDelay = Math.random() * 2 + 's';
+                piece.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                confettiEl.appendChild(piece);
+            }
+        }
+
+        function createConfetti() {
+            const confettiEl = document.getElementById('confetti');
+            confettiEl.innerHTML = '';
+            
+            for (let i = 0; i < 30; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.style.left = Math.random() * 100 + '%';
+                piece.style.animationDelay = Math.random() * 5 + 's';
+                piece.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                confettiEl.appendChild(piece);
+            }
+        }
+
+        function showInstructions() {
+            showToast('🎯 اجمع 4 بطاقات متطابقة للفوز! اضغط على أي بطاقة لتبديلها', 'info');
+        }
+
+        // ==================== تشغيل الكمبيوتر ====================
+        setInterval(() => {
+            if (!gameState.gameActive) return;
+            
+            const currentPlayer = gameState.players[gameState.currentPlayerIndex];
+            if (currentPlayer.id !== 'player1') {
+                computerPlay(currentPlayer.id);
+            }
+        }, 3000);
+
+        // ==================== منع القوائم الافتراضية ====================
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('selectstart', e => e.preventDefault());
+
+        // تهيئة اللعبة
+        init();
+    </script>
 </body>
 </html>
