@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#6C5CE7">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>🍎 كلمه 4 - لعبة الكلمات المذهلة</title>
+    <title>🍎 فواكه 4 - لعبة الكلمات المذهلة</title>
     
     <style>
         /* ===== المتغيرات والثيمات ===== */
@@ -40,7 +40,6 @@
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            min-height: -webkit-fill-available;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -53,18 +52,18 @@
             width: 100%;
             max-width: 500px;
             height: 100vh;
-            height: -webkit-fill-available;
             background: linear-gradient(135deg, #667eea, #764ba2);
             position: relative;
             overflow-y: auto;
             overflow-x: hidden;
             box-shadow: 0 0 50px rgba(0,0,0,0.3);
-            scrollbar-width: none;
-            -ms-overflow-style: none;
         }
 
-        .game-container::-webkit-scrollbar {
-            display: none;
+        /* إصلاح ارتفاع الشاشة للموبايل */
+        @supports (-webkit-touch-callout: none) {
+            .game-container {
+                height: -webkit-fill-available;
+            }
         }
 
         /* ===== الشاشات ===== */
@@ -80,6 +79,8 @@
             transform: translateX(0);
             pointer-events: all;
             background: inherit;
+            display: flex;
+            flex-direction: column;
         }
 
         .screen.hidden {
@@ -92,18 +93,15 @@
         .start-screen {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 20px;
         }
 
         .floating-fruits {
             position: relative;
             width: 100%;
             height: 150px;
-            margin: 20px 0;
+            margin: 10px 0;
         }
 
         .floating-fruit {
@@ -170,20 +168,20 @@
         }
 
         .avatar-circle {
-            width: 80px;
-            height: 80px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
             background: linear-gradient(135deg, #fff, #f0f0f0);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
+            font-size: 2.5rem;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             border: 3px solid white;
             transition: var(--transition);
         }
 
-        .avatar-circle:hover {
+        .avatar-circle:active {
             transform: scale(1.1) rotate(5deg);
         }
 
@@ -198,7 +196,7 @@
         }
 
         .player-name-modern {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: 700;
             line-height: 1.2;
         }
@@ -207,7 +205,7 @@
             background: rgba(255,255,255,0.2);
             border: none;
             color: white;
-            padding: 8px 20px;
+            padding: 6px 15px;
             border-radius: 25px;
             font-size: 0.9rem;
             cursor: pointer;
@@ -215,10 +213,10 @@
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            margin-top: 8px;
+            margin-top: 5px;
         }
 
-        .edit-name-modern:hover {
+        .edit-name-modern:active {
             background: rgba(255,255,255,0.3);
             transform: translateY(-2px);
         }
@@ -228,12 +226,12 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
-            margin: 30px 0;
+            margin: 20px 0;
             animation: slideUp 0.8s ease 0.4s both;
         }
 
         .btn-modern {
-            padding: 18px;
+            padding: 16px;
             border: none;
             border-radius: 50px;
             font-size: 1.2rem;
@@ -246,24 +244,11 @@
             gap: 10px;
             position: relative;
             overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .btn-modern::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.5);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .btn-modern:active::before {
-            width: 300px;
-            height: 300px;
+        .btn-modern:active {
+            transform: scale(0.98);
         }
 
         .btn-primary-modern {
@@ -272,8 +257,8 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
-        .btn-primary-modern:hover {
-            transform: translateY(-3px) scale(1.02);
+        .btn-primary-modern:active {
+            transform: translateY(-2px) scale(1.02);
             box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
 
@@ -284,17 +269,18 @@
             backdrop-filter: blur(5px);
         }
 
-        .btn-secondary-modern:hover {
+        .btn-secondary-modern:active {
             background: rgba(255,255,255,0.25);
-            transform: translateY(-3px);
+            transform: translateY(-2px);
         }
 
         .stats-modern {
             display: flex;
             justify-content: center;
             gap: 30px;
-            margin-top: 30px;
+            margin-top: 20px;
             animation: fadeIn 1s ease 0.6s both;
+            flex-wrap: wrap;
         }
 
         @keyframes fadeIn {
@@ -304,18 +290,19 @@
 
         .stat-item-modern {
             text-align: center;
+            min-width: 70px;
         }
 
         .stat-value-modern {
             display: block;
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 800;
             color: white;
             text-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
         .stat-label-modern {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             opacity: 0.8;
         }
 
@@ -329,7 +316,7 @@
             background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            padding: 15px 20px;
+            padding: 12px 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -338,11 +325,11 @@
 
         .round-badge-modern {
             background: rgba(255,255,255,0.2);
-            padding: 8px 20px;
+            padding: 6px 15px;
             border-radius: 30px;
             color: white;
             font-weight: 600;
-            font-size: 1rem;
+            font-size: 0.9rem;
             display: flex;
             align-items: center;
             gap: 5px;
@@ -351,13 +338,13 @@
         .timer-modern {
             background: white;
             color: var(--primary);
-            width: 70px;
-            height: 70px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 800;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             transition: all 0.3s;
@@ -367,24 +354,23 @@
             background: var(--danger);
             color: white;
             animation: pulse 1s infinite;
-            transform: scale(1.1);
         }
 
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.15); }
+            50% { transform: scale(1.1); }
         }
 
         .players-progress-modern {
             display: flex;
-            gap: 10px;
-            padding: 15px;
+            gap: 8px;
+            padding: 12px;
             overflow-x: auto;
             scrollbar-width: none;
             -ms-overflow-style: none;
             background: rgba(255,255,255,0.1);
-            margin: 15px;
-            border-radius: 50px;
+            margin: 10px;
+            border-radius: 40px;
             backdrop-filter: blur(5px);
         }
 
@@ -393,38 +379,42 @@
         }
 
         .player-progress-modern {
-            min-width: 90px;
+            min-width: 80px;
             text-align: center;
             background: rgba(255,255,255,0.15);
-            padding: 12px 5px;
-            border-radius: 30px;
+            padding: 8px 5px;
+            border-radius: 25px;
             transition: var(--transition);
             cursor: pointer;
         }
 
         .player-progress-modern.active {
             background: rgba(255,255,255,0.3);
-            transform: translateY(-3px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .player-progress-modern:active {
+            transform: scale(0.95);
         }
 
         .progress-avatar-modern {
-            width: 45px;
-            height: 45px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             background: linear-gradient(135deg, #fff, #f0f0f0);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8rem;
-            margin: 0 auto 8px;
+            font-size: 1.5rem;
+            margin: 0 auto 5px;
             border: 2px solid white;
         }
 
         .progress-name-modern {
             color: white;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             margin-bottom: 5px;
             white-space: nowrap;
             overflow: hidden;
@@ -432,9 +422,9 @@
         }
 
         .progress-bar-modern {
-            height: 6px;
+            height: 4px;
             background: rgba(255,255,255,0.2);
-            border-radius: 3px;
+            border-radius: 2px;
             overflow: hidden;
             margin: 5px 0;
         }
@@ -443,113 +433,92 @@
             height: 100%;
             background: linear-gradient(90deg, #fff, var(--secondary));
             transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 3px;
         }
 
         .progress-count-modern {
             color: white;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             font-weight: 600;
         }
 
         .cards-grid-modern {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            padding: 15px;
+            gap: 12px;
+            padding: 12px;
             margin-bottom: 80px;
         }
 
         .card-modern {
             background: white;
-            border-radius: 25px;
-            padding: 25px 10px;
+            border-radius: 20px;
+            padding: 15px 5px;
             text-align: center;
             box-shadow: var(--shadow);
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
             aspect-ratio: 2/3;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            position: relative;
-            overflow: hidden;
             animation: cardAppear 0.5s ease;
+            -webkit-tap-highlight-color: transparent;
         }
 
         @keyframes cardAppear {
             from {
                 opacity: 0;
-                transform: scale(0) rotate(-180deg);
+                transform: scale(0.8);
             }
             to {
                 opacity: 1;
-                transform: scale(1) rotate(0);
+                transform: scale(1);
             }
         }
 
-        .card-modern::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.3), transparent);
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-        }
-
-        .card-modern:active::before {
-            opacity: 1;
-        }
-
-        .card-modern:hover {
-            transform: translateY(-8px) scale(1.02);
+        .card-modern:active {
+            transform: scale(0.95);
             border-color: var(--primary);
-            box-shadow: 0 20px 40px rgba(108, 92, 231, 0.4);
         }
 
         .card-modern.exchanging {
-            animation: exchangeCard 0.6s ease;
+            animation: exchangeCard 0.4s ease;
         }
 
         @keyframes exchangeCard {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(0.8) rotate(10deg); }
+            50% { transform: scale(0.9) rotate(5deg); }
         }
 
         .card-emoji-modern {
-            font-size: clamp(3rem, 10vw, 4.5rem);
-            margin-bottom: 10px;
-            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1));
+            font-size: clamp(2.5rem, 8vw, 3.5rem);
+            margin-bottom: 8px;
         }
 
         .card-name-modern {
-            font-size: clamp(0.9rem, 3vw, 1.2rem);
+            font-size: clamp(0.8rem, 2.5vw, 1rem);
             font-weight: 700;
             color: var(--dark);
         }
 
         .win-button-modern {
             position: fixed;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
+            bottom: 15px;
+            left: 15px;
+            right: 15px;
             max-width: 500px;
             margin: 0 auto;
-            padding: 18px;
+            padding: 15px;
             background: var(--gradient-danger);
             color: white;
             border: none;
             border-radius: 50px;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 800;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -562,16 +531,10 @@
             opacity: 0.3;
             transform: scale(0.95);
             pointer-events: none;
-            filter: grayscale(1);
-        }
-
-        .win-button-modern:not(:disabled):hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(255, 71, 87, 0.6);
         }
 
         .win-button-modern:not(:disabled):active {
-            transform: translateY(0) scale(0.98);
+            transform: scale(0.98);
         }
 
         .win-button-modern.pulse {
@@ -580,7 +543,7 @@
 
         @keyframes buttonPulse {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            50% { transform: scale(1.03); }
         }
 
         /* ===== نافذة الفوز ===== */
@@ -590,58 +553,33 @@
             left: 50%;
             transform: translate(-50%, -50%) scale(0);
             background: white;
-            padding: 40px 20px;
-            border-radius: 40px;
+            padding: 30px 15px;
+            border-radius: 30px;
             text-align: center;
             z-index: 1000;
             width: 90%;
-            max-width: 380px;
+            max-width: 350px;
             box-shadow: 0 30px 70px rgba(0,0,0,0.3);
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .winner-modal-modern.show {
             transform: translate(-50%, -50%) scale(1);
         }
 
-        .confetti {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            overflow: hidden;
-        }
-
-        .confetti-piece {
-            position: absolute;
-            width: 10px;
-            height: 30px;
-            background: var(--primary);
-            top: -100px;
-            animation: confettiFall 3s linear infinite;
-        }
-
-        @keyframes confettiFall {
-            to {
-                transform: translateY(100vh) rotate(720deg);
-            }
-        }
-
         .winner-avatar-modern {
-            width: 120px;
-            height: 120px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             background: var(--gradient);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 4rem;
-            margin: 0 auto 20px;
+            font-size: 3.5rem;
+            margin: 0 auto 15px;
             border: 4px solid white;
             box-shadow: var(--shadow-lg);
-            animation: winnerSpin 1s ease;
+            animation: winnerSpin 0.8s ease;
         }
 
         @keyframes winnerSpin {
@@ -650,33 +588,37 @@
         }
 
         .winner-title-modern {
-            font-size: 2.2rem;
+            font-size: 2rem;
             color: var(--dark);
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             font-weight: 900;
         }
 
         .winner-time-modern {
             color: #666;
-            margin-bottom: 25px;
-            font-size: 1.2rem;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
         }
 
         .modal-buttons-modern {
             display: flex;
             gap: 10px;
-            margin-top: 20px;
+            margin-top: 15px;
         }
 
         .modal-btn-modern {
             flex: 1;
-            padding: 15px;
+            padding: 12px;
             border: none;
-            border-radius: 15px;
+            border-radius: 12px;
             font-weight: 700;
             cursor: pointer;
             transition: var(--transition);
             font-size: 1rem;
+        }
+
+        .modal-btn-modern:active {
+            transform: translateY(-2px);
         }
 
         .modal-btn-primary-modern {
@@ -684,19 +626,9 @@
             color: white;
         }
 
-        .modal-btn-primary-modern:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 184, 148, 0.4);
-        }
-
         .modal-btn-secondary-modern {
             background: #e0e0e0;
             color: var(--dark);
-        }
-
-        .modal-btn-secondary-modern:hover {
-            background: #d0d0d0;
-            transform: translateY(-2px);
         }
 
         .overlay-modern {
@@ -721,75 +653,41 @@
         /* ===== رسائل التنبيه ===== */
         .toast-modern {
             position: fixed;
-            bottom: 30px;
+            bottom: 80px;
             left: 50%;
             transform: translateX(-50%) translateY(100px);
-            padding: 15px 30px;
+            padding: 12px 25px;
             border-radius: 50px;
             color: white;
             font-weight: 600;
             z-index: 2000;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             max-width: 90%;
+            font-size: 0.95rem;
         }
 
         .toast-modern.show {
             transform: translateX(-50%) translateY(0);
         }
 
-        .toast-modern.success {
-            background: linear-gradient(135deg, var(--success), #00CEC9);
-        }
-
-        .toast-modern.error {
-            background: linear-gradient(135deg, var(--danger), #FF6B6B);
-        }
-
-        .toast-modern.info {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-        }
-
-        .toast-modern.warning {
-            background: linear-gradient(135deg, var(--warning), #FFA502);
-        }
-
-        /* ===== أنيميشن إضافي ===== */
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-
-        .shake {
-            animation: shake 0.5s ease;
-        }
+        .toast-modern.success { background: linear-gradient(135deg, #00B894, #00CEC9); }
+        .toast-modern.error { background: linear-gradient(135deg, #FF7675, #FF6B6B); }
+        .toast-modern.info { background: linear-gradient(135deg, #6C5CE7, #00D2FF); }
+        .toast-modern.warning { background: linear-gradient(135deg, #FDCB6E, #FFA502); }
 
         /* ===== تحسينات للموبايل ===== */
         @media (max-width: 380px) {
-            .card-emoji-modern {
-                font-size: 2.5rem;
-            }
-            
-            .card-name-modern {
-                font-size: 0.8rem;
-            }
-            
-            .player-name-modern {
-                font-size: 1.4rem;
-            }
-            
-            .avatar-circle {
-                width: 60px;
-                height: 60px;
-                font-size: 2.2rem;
-            }
+            .card-emoji-modern { font-size: 2.2rem; }
+            .card-name-modern { font-size: 0.75rem; }
+            .player-name-modern { font-size: 1.3rem; }
+            .avatar-circle { width: 60px; height: 60px; font-size: 2rem; }
+            .timer-modern { width: 50px; height: 50px; font-size: 1.5rem; }
         }
 
-        /* ===== دعم الشاشات الكبيرة ===== */
         @media (min-width: 768px) {
             .game-container {
                 height: 95vh;
@@ -800,6 +698,20 @@
     </style>
 </head>
 <body>
+    <!-- عناصر الصوت المخفية -->
+    <audio id="sound-click" preload="auto" style="display: none;">
+        <source src="data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gTG9uZXBpbGUuY29tVFhYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1g=" type="audio/mpeg">
+    </audio>
+    <audio id="sound-win" preload="auto" style="display: none;">
+        <source src="data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gTG9uZXBpbGUuY29tVFhYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1g=" type="audio/mpeg">
+    </audio>
+    <audio id="sound-exchange" preload="auto" style="display: none;">
+        <source src="data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gTG9uZXBpbGUuY29tVFhYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1g=" type="audio/mpeg">
+    </audio>
+    <audio id="sound-timer" preload="auto" style="display: none;">
+        <source src="data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gTG9uZXBpbGUuY29tVFhYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1hYV1g=" type="audio/mpeg">
+    </audio>
+
     <div class="game-container">
         <!-- شاشة البداية -->
         <div id="startScreen" class="screen start-screen">
@@ -832,7 +744,7 @@
                 </button>
             </div>
 
-            <div class="stats-modern" id="stats">
+            <div class="stats-modern">
                 <div class="stat-item-modern">
                     <span class="stat-value-modern" id="gamesPlayed">0</span>
                     <span class="stat-label-modern">الألعاب</span>
@@ -858,13 +770,8 @@
                 <div class="timer-modern" id="timer">60</div>
             </div>
 
-            <div id="playersProgress" class="players-progress-modern">
-                <!-- تضاف هنا ديناميكياً -->
-            </div>
-
-            <div id="cardsContainer" class="cards-grid-modern">
-                <!-- تضاف البطاقات هنا ديناميكياً -->
-            </div>
+            <div id="playersProgress" class="players-progress-modern"></div>
+            <div id="cardsContainer" class="cards-grid-modern"></div>
 
             <button id="winButton" class="win-button-modern" disabled onclick="claimWin()">
                 <span>🏆</span> لقد جمعت 4!
@@ -874,7 +781,6 @@
 
     <!-- نافذة الفوز -->
     <div id="winnerModal" class="winner-modal-modern">
-        <div class="confetti" id="confetti"></div>
         <div class="winner-avatar-modern" id="winnerAvatar">🏆</div>
         <h2 class="winner-title-modern" id="winnerTitle">فائز!</h2>
         <div class="winner-time-modern" id="winnerTime"></div>
@@ -893,8 +799,8 @@
             players: [
                 { id: 'player1', name: '', avatar: '👤', isCurrent: true, wins: 0 },
                 { id: 'player2', name: 'محمد', avatar: '👨', isCurrent: false, wins: 0 },
-                { id: 'player3', name: 'عبدالقادر ', avatar: '👦', isCurrent: false, wins: 0 },
-                { id: 'player4', name: 'اسماء', avatar: '👧', isCurrent: false, wins: 0 }
+                { id: 'player3', name: 'عبدالقادر', avatar: '👦', isCurrent: false, wins: 0 },
+                { id: 'player4', name: 'أسماء', avatar: '👧', isCurrent: false, wins: 0 }
             ],
             currentPlayerIndex: 0,
             cards: {},
@@ -910,11 +816,29 @@
             stats: {
                 games: 0,
                 wins: 0,
-                fastestWin: null,
-                roundTimes: []
+                fastestWin: null
             },
             lastAction: 0
         };
+
+        // ==================== نظام الصوت ====================
+        const sounds = {
+            click: document.getElementById('sound-click'),
+            win: document.getElementById('sound-win'),
+            exchange: document.getElementById('sound-exchange'),
+            timer: document.getElementById('sound-timer')
+        };
+
+        function playSound(type) {
+            try {
+                if (sounds[type]) {
+                    sounds[type].currentTime = 0;
+                    sounds[type].play().catch(e => console.log('صوت متوقف:', e));
+                }
+            } catch (e) {
+                console.log('خطأ في الصوت:', e);
+            }
+        }
 
         // ==================== التهيئة ====================
         function init() {
@@ -922,7 +846,16 @@
             gameState.players[0].name = gameState.playerName;
             updatePlayerDisplay();
             updateStatsDisplay();
-            createConfetti();
+            
+            // إصلاح ارتفاع الشاشة للموبايل
+            function setHeight() {
+                const vh = window.innerHeight * 0.01;
+                document.documentElement.style.setProperty('--vh', `${vh}px`);
+            }
+            
+            window.addEventListener('resize', setHeight);
+            window.addEventListener('orientationchange', setHeight);
+            setHeight();
         }
 
         function loadStats() {
@@ -954,12 +887,14 @@
                 localStorage.setItem('playerName', gameState.playerName);
                 updatePlayerDisplay();
                 showToast('✅ تم تحديث الاسم', 'success');
+                playSound('click');
             }
         }
 
         // ==================== بدء اللعبة ====================
         function startGame() {
-            // تبديل الشاشات
+            playSound('click');
+            
             document.getElementById('startScreen').classList.add('hidden');
             document.getElementById('gameScreen').classList.remove('hidden');
             
@@ -971,20 +906,16 @@
             initializeRound();
             saveStats();
             updateStatsDisplay();
-            
             showToast('🎮 بدأت اللعبة!', 'success');
-            playSound('start');
         }
 
         function initializeRound() {
             const deck = createDeck();
             const shuffled = shuffleArray([...deck]);
             
-            // توزيع البطاقات
             gameState.players.forEach((player, index) => {
                 const startIdx = index * 4;
-                const endIdx = startIdx + 4;
-                gameState.cards[player.id] = shuffled.slice(startIdx, endIdx);
+                gameState.cards[player.id] = shuffled.slice(startIdx, startIdx + 4);
             });
 
             updateDisplay();
@@ -1036,6 +967,7 @@
                 div.onclick = () => {
                     if (player.id !== 'player1') {
                         showToast(`دور ${player.name}`, 'info');
+                        playSound('click');
                     }
                 };
                 
@@ -1102,39 +1034,31 @@
                 return;
             }
 
-            if (Date.now() - gameState.lastAction < 500) {
-                return; // منع النقر السريع
+            if (Date.now() - gameState.lastAction < 400) {
+                return;
             }
             gameState.lastAction = Date.now();
 
-            // أنيميشن التبادل
+            playSound('exchange');
+            
             element.classList.add('exchanging');
-            setTimeout(() => element.classList.remove('exchanging'), 600);
+            setTimeout(() => element.classList.remove('exchanging'), 400);
 
             const myCards = gameState.cards['player1'];
             const deck = createDeck();
             
             const newCard = deck[Math.floor(Math.random() * deck.length)];
-            const oldCard = myCards[index];
-            
             myCards[index] = newCard;
             
             setTimeout(() => {
                 displayMyCards();
                 updatePlayersProgress();
                 checkWinButton();
-            }, 300);
+            }, 200);
             
-            showToast(`🔄 تم التبادل`, 'info');
-            playSound('exchange');
+            showToast('🔄 تم التبادل', 'info');
             
-            // التحقق من الفوز بعد التبادل
-            if (getMaxSameCards(myCards) >= 4) {
-                checkWinButton();
-            }
-            
-            // دور اللاعب التالي
-            setTimeout(() => nextPlayer(), 600);
+            setTimeout(() => nextPlayer(), 500);
         }
 
         function nextPlayer() {
@@ -1145,7 +1069,7 @@
             
             if (currentPlayer.id !== 'player1') {
                 showToast(`🔵 دور ${currentPlayer.name}`, 'info');
-                setTimeout(() => computerPlay(currentPlayer.id), 1000);
+                setTimeout(() => computerPlay(currentPlayer.id), 800);
             }
         }
 
@@ -1160,7 +1084,6 @@
             
             updatePlayersProgress();
             
-            // التحقق من فوز الكمبيوتر
             const maxSame = getMaxSameCards(computerCards);
             if (maxSame >= 4) {
                 handleWin(playerId);
@@ -1172,6 +1095,7 @@
         // ==================== الفوز ====================
         function claimWin() {
             if (!gameState.gameActive) return;
+            playSound('win');
             handleWin('player1');
         }
 
@@ -1192,10 +1116,8 @@
                 updateStatsDisplay();
             }
 
-            // تحديث إحصائيات الفائز
             player.wins++;
 
-            // إظهار نافذة الفوز
             document.getElementById('winnerAvatar').innerHTML = isMe ? '🏆' : player.avatar;
             document.getElementById('winnerTitle').textContent = isMe ? '🎉 أنت الفائز!' : `🎉 ${player.name} فاز!`;
             document.getElementById('winnerTime').textContent = `الزمن: ${60 - gameState.timeLeft} ثانية`;
@@ -1205,7 +1127,6 @@
             
             showToast(isMe ? '🎉 مبروك الفوز!' : `😢 ${player.name} فاز!`, isMe ? 'success' : 'info');
             launchConfetti();
-            playSound('win');
         }
 
         // ==================== المؤقت ====================
@@ -1244,7 +1165,6 @@
             stopTimer();
             gameState.gameActive = false;
             
-            // تحديد صاحب أكبر عدد
             let maxCount = 0;
             let winner = null;
             
@@ -1267,6 +1187,7 @@
 
         // ==================== الجولات ====================
         function nextRound() {
+            playSound('click');
             document.getElementById('winnerModal').classList.remove('show');
             document.getElementById('overlay').classList.remove('show');
             
@@ -1279,6 +1200,7 @@
         }
 
         function endGame() {
+            playSound('click');
             document.getElementById('winnerModal').classList.remove('show');
             document.getElementById('overlay').classList.remove('show');
             document.getElementById('gameScreen').classList.add('hidden');
@@ -1310,50 +1232,32 @@
             setTimeout(() => {
                 toast.classList.remove('show');
                 setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-
-        function playSound(type) {
-            // في النسخة القادمة يمكن إضافة أصوات حقيقية
-            const sounds = {
-                start: '🎮',
-                win: '🏆',
-                exchange: '🔄',
-                timer: '⏰'
-            };
-            console.log(`🔊 ${sounds[type] || ''}`);
+            }, 2500);
         }
 
         function launchConfetti() {
-            const confettiEl = document.getElementById('confetti');
-            confettiEl.innerHTML = '';
-            
-            for (let i = 0; i < 50; i++) {
-                const piece = document.createElement('div');
-                piece.className = 'confetti-piece';
-                piece.style.left = Math.random() * 100 + '%';
-                piece.style.animationDelay = Math.random() * 2 + 's';
-                piece.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
-                confettiEl.appendChild(piece);
-            }
-        }
-
-        function createConfetti() {
-            const confettiEl = document.getElementById('confetti');
-            confettiEl.innerHTML = '';
-            
             for (let i = 0; i < 30; i++) {
-                const piece = document.createElement('div');
-                piece.className = 'confetti-piece';
-                piece.style.left = Math.random() * 100 + '%';
-                piece.style.animationDelay = Math.random() * 5 + 's';
-                piece.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
-                confettiEl.appendChild(piece);
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.style.position = 'fixed';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.top = '-10px';
+                    confetti.style.width = '10px';
+                    confetti.style.height = '20px';
+                    confetti.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                    confetti.style.borderRadius = '5px';
+                    confetti.style.zIndex = '10000';
+                    confetti.style.animation = `confettiFall ${1 + Math.random()}s linear`;
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 2000);
+                }, i * 50);
             }
         }
 
         function showInstructions() {
-            showToast('🎯 اجمع 4 بطاقات متطابقة لتصبح الفائز! اضغط على أي بطاقة لتبديلها', 'info');
+            playSound('click');
+            showToast('🎯 اجمع 4 بطاقات متطابقة للفوز! اضغط على أي بطاقة لتبديلها', 'info');
         }
 
         // ==================== تشغيل الكمبيوتر ====================
