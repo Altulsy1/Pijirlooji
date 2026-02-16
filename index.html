@@ -6,7 +6,12 @@
     <meta name="theme-color" content="#6C5CE7">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>🎮 كلمة 4 - لعبة الكلمات المتعددة</title>
+    <title>🎮 الكلمات الاربعة - لعبة الكلمات المتعددة</title>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     
     <style>
         /* ===== المتغيرات والثيمات ===== */
@@ -65,7 +70,431 @@
             }
         }
 
-        /* ===== تأثيرات حركية متقدمة ===== */
+        /* ===== شاشة تسجيل الدخول الجديدة ===== */
+        .auth-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            min-height: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 2000;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
+        }
+
+        .auth-screen.hidden {
+            opacity: 0;
+            transform: translateX(100%);
+            pointer-events: none;
+        }
+
+        .auth-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 40px;
+            padding: 30px 25px;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            animation: slideInUp 0.8s ease;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-logo {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #fff, #f0f0f0);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            margin: 0 auto 20px;
+            border: 4px solid white;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            animation: pulse-glow 2s infinite;
+        }
+
+        .auth-title {
+            color: white;
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .auth-subtitle {
+            color: rgba(255,255,255,0.9);
+            font-size: 1rem;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            background: rgba(255,255,255,0.1);
+            padding: 5px;
+            border-radius: 50px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            color: white;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .auth-tab.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .auth-form.hidden {
+            display: none;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .auth-input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            background: rgba(255,255,255,0.15);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 50px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s;
+            direction: ltr;
+        }
+
+        .auth-input:focus {
+            outline: none;
+            border-color: white;
+            background: rgba(255,255,255,0.25);
+        }
+
+        .auth-input::placeholder {
+            color: rgba(255,255,255,0.6);
+        }
+
+        .password-toggle {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+            opacity: 0.8;
+            transition: all 0.3s;
+        }
+
+        .password-toggle:hover {
+            opacity: 1;
+        }
+
+        .auth-button {
+            padding: 16px;
+            background: white;
+            border: none;
+            border-radius: 50px;
+            color: var(--primary);
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .auth-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .auth-button:active {
+            transform: translateY(0);
+        }
+
+        .auth-divider {
+            text-align: center;
+            color: white;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background: rgba(255,255,255,0.3);
+        }
+
+        .auth-divider::before {
+            right: 0;
+        }
+
+        .auth-divider::after {
+            left: 0;
+        }
+
+        .social-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .social-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .social-btn:hover {
+            transform: translateY(-5px) scale(1.1);
+            background: rgba(255,255,255,0.25);
+        }
+
+        .social-btn:active {
+            transform: scale(0.9);
+        }
+
+        .auth-link {
+            text-align: center;
+            color: white;
+            margin-top: 15px;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: all 0.3s;
+        }
+
+        .auth-link:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background: rgba(255, 71, 87, 0.2);
+            border: 1px solid rgba(255, 71, 87, 0.5);
+            border-radius: 50px;
+            padding: 12px 20px;
+            color: white;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .error-message.show {
+            display: flex;
+        }
+
+        .success-message {
+            background: rgba(0, 184, 148, 0.2);
+            border: 1px solid rgba(0, 184, 148, 0.5);
+            border-radius: 50px;
+            padding: 12px 20px;
+            color: white;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .success-message.show {
+            display: flex;
+        }
+
+        /* ===== أنماط تسجيل الدخول المصغرة ===== */
+        .auth-section {
+            margin: 15px 0;
+            animation: slideInLeft 0.8s ease 0.1s both;
+        }
+
+        .user-info {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 40px;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .user-name {
+            font-weight: 600;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:active {
+            transform: scale(0.9);
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* ===== أنماط لوحة المتصدرين ===== */
+        .leaderboard-section {
+            margin: 20px 0;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 15px;
+            animation: slideInRight 0.8s ease 0.2s both;
+        }
+
+        .leaderboard-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+
+        .leaderboard-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .leaderboard-item {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            transition: all 0.3s;
+        }
+
+        .leaderboard-item:hover {
+            transform: translateX(-5px);
+            background: rgba(255,255,255,0.2);
+        }
+
+        .leaderboard-rank {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+        }
+
+        .leaderboard-avatar {
+            font-size: 1.5rem;
+        }
+
+        .leaderboard-name {
+            flex: 1;
+            font-weight: 600;
+        }
+
+        .leaderboard-stats {
+            display: flex;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+
+        .leaderboard-stat {
+            background: rgba(255,255,255,0.2);
+            padding: 3px 8px;
+            border-radius: 15px;
+        }
+
+        /* ===== أنماط اللعبة المعدلة ===== */
         @keyframes float {
             0%, 100% { transform: translateY(0) rotate(0deg); }
             50% { transform: translateY(-20px) rotate(5deg); }
@@ -261,7 +690,6 @@
             background: rgba(255,255,255,0.3);
         }
 
-        /* ===== قائمة اختيار الفئة ===== */
         .category-selector {
             width: 100%;
             margin: 20px 0;
@@ -392,10 +820,44 @@
             transform: translateY(-3px);
         }
 
-        /* ===== شاشة اللعب ===== */
+        .stats-modern {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            animation: slideInRight 0.8s ease 0.5s both;
+        }
+
+        .stat-item-modern {
+            text-align: center;
+        }
+
+        .stat-value-modern {
+            display: block;
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: rgba(255,255,255,0.2);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 5px;
+            border: 2px solid white;
+        }
+
+        .stat-label-modern {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* ===== شاشة اللعب المعدلة ===== */
         .game-screen {
             background: linear-gradient(135deg, #667eea, #764ba2);
             padding: 0;
+            display: flex;
+            flex-direction: column;
         }
 
         .game-header-modern {
@@ -426,6 +888,17 @@
         .category-badge:hover {
             transform: scale(1.05);
             background: rgba(255,255,255,0.3);
+        }
+
+        .round-badge-modern {
+            background: rgba(255,255,255,0.2);
+            padding: 6px 15px;
+            border-radius: 30px;
+            color: white;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .timer-modern {
@@ -502,25 +975,56 @@
             transform: rotate(360deg);
         }
 
-        /* ===== بطاقات مذهلة مع تأثيرات حركية ===== */
+        .progress-name-modern {
+            font-size: 0.8rem;
+            color: white;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .progress-bar-modern {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+            margin: 5px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill-modern {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), white);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-count-modern {
+            font-size: 0.7rem;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* ===== بطاقات مصغرة مع تأثيرات ===== */
         .cards-grid-modern {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            padding: 15px;
-            margin-bottom: 80px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            padding: 10px;
+            margin-bottom: 90px;
         }
 
         .card-modern {
             background: white;
-            border-radius: 25px;
-            padding: 20px 5px;
+            border-radius: 15px;
+            padding: 8px 2px;
             text-align: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 3px solid transparent;
-            aspect-ratio: 2/3;
+            border: 2px solid transparent;
+            aspect-ratio: 1/1.2;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -531,7 +1035,6 @@
             transform-style: preserve-3d;
         }
 
-        /* تأثير التوهج عند التحويم */
         .card-modern::before {
             content: '';
             position: absolute;
@@ -552,16 +1055,15 @@
         }
 
         .card-modern:hover {
-            transform: translateY(-10px) scale(1.05);
+            transform: translateY(-5px) scale(1.03);
             border-color: var(--primary);
-            box-shadow: 0 30px 50px rgba(108, 92, 231, 0.4);
+            box-shadow: 0 20px 30px rgba(108, 92, 231, 0.4);
         }
 
         .card-modern:active {
             transform: scale(0.95);
         }
 
-        /* تأثيرات حركية متعددة للبطاقات */
         .card-modern.exchanging {
             animation: spin 0.6s ease;
         }
@@ -583,27 +1085,21 @@
             animation: bounce 0.8s infinite;
         }
 
-        /* تخصيص لكل بطاقة بتأخير مختلف */
-        .card-modern:nth-child(1) { animation-delay: 0.1s; }
-        .card-modern:nth-child(2) { animation-delay: 0.2s; }
-        .card-modern:nth-child(3) { animation-delay: 0.3s; }
-        .card-modern:nth-child(4) { animation-delay: 0.4s; }
-
         .card-emoji-modern {
-            font-size: clamp(3rem, 10vw, 4rem);
-            margin-bottom: 10px;
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2));
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
+            margin-bottom: 3px;
+            filter: drop-shadow(0 5px 8px rgba(0,0,0,0.2));
             transition: all 0.3s;
             animation: float 3s infinite ease-in-out;
         }
 
         .card-modern:hover .card-emoji-modern {
             transform: scale(1.2) rotate(5deg);
-            filter: drop-shadow(0 20px 30px rgba(108, 92, 231, 0.5));
+            filter: drop-shadow(0 10px 15px rgba(108, 92, 231, 0.5));
         }
 
         .card-name-modern {
-            font-size: clamp(0.9rem, 3vw, 1.1rem);
+            font-size: clamp(0.7rem, 2.5vw, 0.9rem);
             font-weight: 700;
             color: var(--dark);
             transition: all 0.3s;
@@ -614,25 +1110,24 @@
             transform: scale(1.1);
         }
 
-        /* تأثيرات للبطاقات المتطابقة */
         .card-modern[data-same="2"] {
             border-color: var(--secondary);
-            box-shadow: 0 0 20px var(--secondary);
+            box-shadow: 0 0 15px var(--secondary);
         }
 
         .card-modern[data-same="3"] {
             border-color: var(--warning);
-            box-shadow: 0 0 30px var(--warning);
+            box-shadow: 0 0 20px var(--warning);
             animation: pulse-glow 1.5s infinite;
         }
 
         .card-modern[data-same="4"] {
             border-color: gold;
-            box-shadow: 0 0 40px gold;
+            box-shadow: 0 0 25px gold;
             animation: glowPulse 0.8s infinite, celebrate 1s infinite;
         }
 
-        /* زر الفوز المتحرك */
+        /* ===== زر الفوز المتحرك - أكبر وأوضح ===== */
         .win-button-modern {
             position: fixed;
             bottom: 15px;
@@ -640,22 +1135,24 @@
             right: 15px;
             max-width: 500px;
             margin: 0 auto;
-            padding: 18px;
+            padding: 20px;
             background: var(--gradient-danger);
             color: white;
             border: none;
-            border-radius: 50px;
-            font-size: 1.3rem;
+            border-radius: 60px;
+            font-size: 1.4rem;
             font-weight: 800;
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            box-shadow: 0 10px 30px rgba(255, 71, 87, 0.4);
+            gap: 12px;
+            box-shadow: 0 15px 40px rgba(255, 71, 87, 0.5);
             z-index: 100;
             overflow: hidden;
+            border: 3px solid rgba(255,255,255,0.3);
+            letter-spacing: 1px;
         }
 
         .win-button-modern::before {
@@ -665,7 +1162,7 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.3), transparent);
+            background: radial-gradient(circle, rgba(255,255,255,0.4), transparent);
             opacity: 0;
             transition: opacity 0.5s;
             pointer-events: none;
@@ -676,7 +1173,7 @@
         }
 
         .win-button-modern:disabled {
-            opacity: 0.3;
+            opacity: 0.4;
             transform: scale(0.95);
             pointer-events: none;
             filter: grayscale(1);
@@ -684,7 +1181,7 @@
 
         .win-button-modern:not(:disabled):hover {
             transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 30px 50px rgba(255, 71, 87, 0.6);
+            box-shadow: 0 25px 50px rgba(255, 71, 87, 0.7);
         }
 
         .win-button-modern:not(:disabled):active {
@@ -692,10 +1189,10 @@
         }
 
         .win-button-modern.pulse {
-            animation: pulse-glow 0.8s infinite, bounce 1s infinite;
+            animation: pulse-glow 1s infinite, bounce 1s infinite;
         }
 
-        /* ===== نافذة الفوز المذهلة ===== */
+        /* ===== نافذة الفوز ===== */
         .winner-modal-modern {
             position: fixed;
             top: 50%;
@@ -746,7 +1243,66 @@
             animation: bounce 1s infinite;
         }
 
-        /* تأثيرات كونفيتي متحركة */
+        .winner-time-modern {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .modal-buttons-modern {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .modal-btn-modern {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .modal-btn-primary-modern {
+            background: var(--gradient-success);
+            color: white;
+        }
+
+        .modal-btn-secondary-modern {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .modal-btn-modern:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .modal-btn-modern:active {
+            transform: scale(0.95);
+        }
+
+        .overlay-modern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .overlay-modern.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
         .confetti {
             position: fixed;
             top: 0;
@@ -778,7 +1334,6 @@
             }
         }
 
-        /* ===== رسائل التنبيه المتحركة ===== */
         .toast-modern {
             position: fixed;
             bottom: 80px;
@@ -789,13 +1344,12 @@
             color: white;
             font-weight: 600;
             z-index: 2000;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.4s;
             display: flex;
             align-items: center;
             gap: 10px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             max-width: 90%;
-            font-size: 1rem;
             backdrop-filter: blur(5px);
         }
 
@@ -812,11 +1366,9 @@
             animation: bounce 1s infinite;
         }
 
-        /* ===== تحسينات للموبايل ===== */
         @media (max-width: 380px) {
-            .card-emoji-modern { font-size: 2.5rem; }
-            .card-name-modern { font-size: 0.8rem; }
-            .player-name-modern { font-size: 1.3rem; }
+            .card-emoji-modern { font-size: 1.6rem; }
+            .card-name-modern { font-size: 0.65rem; }
             .avatar-circle { width: 60px; height: 60px; font-size: 2rem; }
             .timer-modern { width: 50px; height: 50px; font-size: 1.5rem; }
         }
@@ -838,8 +1390,87 @@
     <audio id="sound-timer" preload="auto" style="display: none;"></audio>
 
     <div class="game-container">
+        <!-- شاشة تسجيل الدخول الجديدة -->
+        <div id="authScreen" class="auth-screen">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <div class="auth-logo">🎮</div>
+                    <h2 class="auth-title">الكلمات الأربعة</h2>
+                    <p class="auth-subtitle">سجل دخولك واستمتع باللعب</p>
+                </div>
+
+                <div class="auth-tabs">
+                    <div class="auth-tab active" onclick="switchAuthTab('login')" id="loginTab">تسجيل الدخول</div>
+                    <div class="auth-tab" onclick="switchAuthTab('register')" id="registerTab">إنشاء حساب</div>
+                </div>
+
+                <div id="errorMessage" class="error-message">
+                    <span>⚠️</span>
+                    <span id="errorText"></span>
+                </div>
+
+                <div id="successMessage" class="success-message">
+                    <span>✅</span>
+                    <span id="successText"></span>
+                </div>
+
+                <!-- نموذج تسجيل الدخول -->
+                <div id="loginForm" class="auth-form">
+                    <div class="input-group">
+                        <span class="input-icon">📧</span>
+                        <input type="email" id="loginEmail" class="auth-input" placeholder="البريد الإلكتروني" dir="ltr">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="loginPassword" class="auth-input" placeholder="كلمة المرور" dir="ltr">
+                        <span class="password-toggle" onclick="togglePassword('loginPassword')">👁️</span>
+                    </div>
+                    <button class="auth-button" onclick="loginWithEmail()">
+                        <span>🔑</span> تسجيل الدخول
+                    </button>
+                    <div class="auth-link" onclick="resetPassword()">نسيت كلمة المرور؟</div>
+                </div>
+
+                <!-- نموذج إنشاء حساب -->
+                <div id="registerForm" class="auth-form hidden">
+                    <div class="input-group">
+                        <span class="input-icon">👤</span>
+                        <input type="text" id="registerName" class="auth-input" placeholder="الاسم" dir="rtl">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-icon">📧</span>
+                        <input type="email" id="registerEmail" class="auth-input" placeholder="البريد الإلكتروني" dir="ltr">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="registerPassword" class="auth-input" placeholder="كلمة المرور" dir="ltr">
+                        <span class="password-toggle" onclick="togglePassword('registerPassword')">👁️</span>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="confirmPassword" class="auth-input" placeholder="تأكيد كلمة المرور" dir="ltr">
+                        <span class="password-toggle" onclick="togglePassword('confirmPassword')">👁️</span>
+                    </div>
+                    <button class="auth-button" onclick="registerWithEmail()">
+                        <span>📝</span> إنشاء حساب
+                    </button>
+                </div>
+
+                <div class="auth-divider">أو</div>
+
+                <div class="social-buttons">
+                    <button class="social-btn" onclick="signInWithGoogle()" title="تسجيل بجوجل">
+                        <span>🔴</span>
+                    </button>
+                    <button class="social-btn" onclick="signInAnonymously()" title="دخول سريع">
+                        <span>👤</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- شاشة البداية -->
-        <div id="startScreen" class="screen start-screen">
+        <div id="startScreen" class="screen start-screen hidden">
             <div class="floating-emojis">
                 <div class="floating-emoji">🍎</div>
                 <div class="floating-emoji">🥕</div>
@@ -847,7 +1478,16 @@
                 <div class="floating-emoji">🐦</div>
             </div>
             
-            <h1 class="game-title">كلمة ٤</h1>
+            <h1 class="game-title">لعــبة الكلمات</h1>
+            
+            <!-- معلومات المستخدم -->
+            <div class="auth-section">
+                <div id="userInfo" class="user-info" style="display: none;">
+                    <div class="user-avatar" id="userAvatar">👤</div>
+                    <div class="user-name" id="userDisplayName">زائر</div>
+                    <button class="logout-btn" onclick="logout()">تسجيل خروج</button>
+                </div>
+            </div>
             
             <div class="player-card-modern">
                 <div class="avatar-circle" id="playerAvatar">👤</div>
@@ -857,6 +1497,24 @@
                     <button class="edit-name-modern" onclick="editName()">
                         <span>✏️</span> تعديل
                     </button>
+                </div>
+            </div>
+
+            <!-- لوحة المتصدرين -->
+            <div class="leaderboard-section">
+                <div class="leaderboard-title">
+                    <span>🏆</span> أفضل اللاعبين
+                </div>
+                <div id="leaderboardList" class="leaderboard-list">
+                    <div class="leaderboard-item">
+                        <div class="leaderboard-rank">1</div>
+                        <div class="leaderboard-avatar">👤</div>
+                        <div class="leaderboard-name">زائر</div>
+                        <div class="leaderboard-stats">
+                            <span class="leaderboard-stat">🏆 0</span>
+                            <span class="leaderboard-stat">⚡ 0</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -925,7 +1583,7 @@
             <div id="cardsContainer" class="cards-grid-modern"></div>
 
             <button id="winButton" class="win-button-modern" disabled onclick="claimWin()">
-                <span>🏆</span> لقد جمعت 4!
+                <span>🏆</span> لقد جمعت 4 كروت متشابهة!
             </button>
         </div>
     </div>
@@ -943,7 +1601,415 @@
     <div id="overlay" class="overlay-modern"></div>
 
     <script>
-        // ==================== قوائم JSON ====================
+        // ==================== تهيئة Firebase ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDeOQuQ2umGELjT8wNIw9vJr613Fxj1Dg0",
+            authDomain: "kin-tien.firebaseapp.com",
+            databaseURL: "https://kin-tien-default-rtdb.firebaseio.com",
+            projectId: "kin-tien",
+            storageBucket: "kin-tien.firebasestorage.app",
+            messagingSenderId: "285420896766",
+            appId: "1:285420896766:web:234ee65007d9333c1200af",
+            measurementId: "G-X8W7Y7Z72P"
+        };
+
+        // تهيئة Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        // ==================== دوال شاشة تسجيل الدخول ====================
+        function switchAuthTab(tab) {
+            const loginTab = document.getElementById('loginTab');
+            const registerTab = document.getElementById('registerTab');
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+
+            if (tab === 'login') {
+                loginTab.classList.add('active');
+                registerTab.classList.remove('active');
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+            } else {
+                registerTab.classList.add('active');
+                loginTab.classList.remove('active');
+                registerForm.classList.remove('hidden');
+                loginForm.classList.add('hidden');
+            }
+
+            // إخفاء الرسائل
+            hideMessages();
+        }
+
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            input.setAttribute('type', type);
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            errorText.textContent = message;
+            errorDiv.classList.add('show');
+            
+            // إخفاء رسالة النجاح إذا كانت ظاهرة
+            document.getElementById('successMessage').classList.remove('show');
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            const successText = document.getElementById('successText');
+            successText.textContent = message;
+            successDiv.classList.add('show');
+            
+            // إخفاء رسالة الخطأ إذا كانت ظاهرة
+            document.getElementById('errorMessage').classList.remove('show');
+        }
+
+        function hideMessages() {
+            document.getElementById('errorMessage').classList.remove('show');
+            document.getElementById('successMessage').classList.remove('show');
+        }
+
+        // ==================== دوال المصادقة الجديدة ====================
+        function registerWithEmail() {
+            const name = document.getElementById('registerName').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            // التحقق من المدخلات
+            if (!name || !email || !password || !confirmPassword) {
+                showError('جميع الحقول مطلوبة');
+                return;
+            }
+
+            if (password.length < 6) {
+                showError('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showError('كلمة المرور غير متطابقة');
+                return;
+            }
+
+            // إنشاء المستخدم
+            auth.createUserWithEmailAndPassword(email, password)
+                .then(userCredential => {
+                    // تحديث الاسم
+                    return userCredential.user.updateProfile({
+                        displayName: name
+                    }).then(() => {
+                        return userCredential;
+                    });
+                })
+                .then(userCredential => {
+                    const user = userCredential.user;
+                    showSuccess('تم إنشاء الحساب بنجاح! جاري تسجيل الدخول...');
+                    
+                    // حفظ بيانات المستخدم في قاعدة البيانات
+                    setTimeout(() => {
+                        loadUserData(user.uid, user.displayName || name, user.photoURL);
+                    }, 1500);
+                })
+                .catch(error => {
+                    let message = 'حدث خطأ';
+                    switch(error.code) {
+                        case 'auth/email-already-in-use':
+                            message = 'البريد الإلكتروني مستخدم بالفعل';
+                            break;
+                        case 'auth/invalid-email':
+                            message = 'البريد الإلكتروني غير صالح';
+                            break;
+                        default:
+                            message = error.message;
+                    }
+                    showError(message);
+                });
+        }
+
+        function loginWithEmail() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                showError('البريد الإلكتروني وكلمة المرور مطلوبان');
+                return;
+            }
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then(userCredential => {
+                    const user = userCredential.user;
+                    showSuccess('تم تسجيل الدخول بنجاح! جاري التحميل...');
+                    
+                    setTimeout(() => {
+                        loadUserData(user.uid, user.displayName || 'مستخدم', user.photoURL);
+                    }, 1500);
+                })
+                .catch(error => {
+                    let message = 'حدث خطأ';
+                    switch(error.code) {
+                        case 'auth/user-not-found':
+                            message = 'لا يوجد حساب بهذا البريد';
+                            break;
+                        case 'auth/wrong-password':
+                            message = 'كلمة المرور غير صحيحة';
+                            break;
+                        case 'auth/invalid-email':
+                            message = 'البريد الإلكتروني غير صالح';
+                            break;
+                        default:
+                            message = error.message;
+                    }
+                    showError(message);
+                });
+        }
+
+        function resetPassword() {
+            const email = document.getElementById('loginEmail').value.trim();
+            
+            if (!email) {
+                showError('الرجاء إدخال البريد الإلكتروني');
+                return;
+            }
+
+            auth.sendPasswordResetEmail(email)
+                .then(() => {
+                    showSuccess('تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني');
+                })
+                .catch(error => {
+                    let message = 'حدث خطأ';
+                    switch(error.code) {
+                        case 'auth/user-not-found':
+                            message = 'لا يوجد حساب بهذا البريد';
+                            break;
+                        default:
+                            message = error.message;
+                    }
+                    showError(message);
+                });
+        }
+
+        function signInWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .then(result => {
+                    const user = result.user;
+                    showSuccess(`مرحباً ${user.displayName}! جاري التحميل...`);
+                    
+                    setTimeout(() => {
+                        loadUserData(user.uid, user.displayName, user.photoURL);
+                    }, 1500);
+                })
+                .catch(error => {
+                    console.error('خطأ في تسجيل الدخول:', error);
+                    showError('فشل تسجيل الدخول بجوجل');
+                });
+        }
+
+        function signInAnonymously() {
+            auth.signInAnonymously()
+                .then(result => {
+                    const user = result.user;
+                    showSuccess('تم الدخول كزائر! جاري التحميل...');
+                    
+                    setTimeout(() => {
+                        loadUserData(user.uid, 'زائر', null);
+                    }, 1500);
+                })
+                .catch(error => {
+                    console.error('خطأ في الدخول:', error);
+                    showError('فشل الدخول كزائر');
+                });
+        }
+
+        function logout() {
+            auth.signOut()
+                .then(() => {
+                    showToast('تم تسجيل الخروج', 'info');
+                    updateAuthUI(null);
+                    resetStats();
+                    
+                    // العودة لشاشة تسجيل الدخول
+                    document.getElementById('authScreen').classList.remove('hidden');
+                    document.getElementById('startScreen').classList.add('hidden');
+                })
+                .catch(error => {
+                    console.error('خطأ في تسجيل الخروج:', error);
+                });
+        }
+
+        // مراقبة حالة المصادقة
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // مستخدم مسجل دخول - إخفاء شاشة تسجيل الدخول
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('startScreen').classList.remove('hidden');
+                
+                loadUserData(user.uid, user.displayName || 'مستخدم', user.photoURL);
+            } else {
+                // لا يوجد مستخدم - إظهار شاشة تسجيل الدخول
+                document.getElementById('authScreen').classList.remove('hidden');
+                document.getElementById('startScreen').classList.add('hidden');
+                document.getElementById('gameScreen').classList.add('hidden');
+                
+                updateAuthUI(null);
+                resetStats();
+            }
+        });
+
+        function loadUserData(uid, displayName, photoURL) {
+            gameState.userId = uid;
+            
+            // تحميل بيانات المستخدم من Realtime Database
+            const userRef = database.ref('users/' + uid);
+            userRef.once('value', snapshot => {
+                const userData = snapshot.val();
+                
+                if (userData) {
+                    // استخدام البيانات المحفوظة
+                    gameState.playerName = userData.name || displayName;
+                    gameState.stats = userData.stats || {
+                        games: 0,
+                        wins: 0,
+                        fastestWin: null
+                    };
+                } else {
+                    // مستخدم جديد - إنشاء سجل
+                    gameState.playerName = displayName;
+                    gameState.stats = {
+                        games: 0,
+                        wins: 0,
+                        fastestWin: null
+                    };
+                    
+                    // حفظ في قاعدة البيانات
+                    userRef.set({
+                        name: displayName,
+                        avatar: photoURL || '👤',
+                        stats: gameState.stats,
+                        lastLogin: Date.now()
+                    });
+                }
+                
+                // تحديث واجهة المستخدم
+                updateAuthUI({
+                    uid,
+                    displayName: gameState.playerName,
+                    photoURL
+                });
+                
+                gameState.players[0].name = gameState.playerName;
+                updatePlayerDisplay();
+                updateStatsDisplay();
+            });
+            
+            // تحميل لوحة المتصدرين
+            loadLeaderboard();
+        }
+
+        function updateAuthUI(user) {
+            const userInfo = document.getElementById('userInfo');
+            const userAvatar = document.getElementById('userAvatar');
+            const userDisplayName = document.getElementById('userDisplayName');
+            
+            if (user) {
+                userInfo.style.display = 'flex';
+                if (user.photoURL) {
+                    userAvatar.innerHTML = `<img src="${user.photoURL}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+                } else {
+                    userAvatar.innerHTML = '👤';
+                }
+                userDisplayName.textContent = user.displayName;
+            } else {
+                userInfo.style.display = 'none';
+            }
+        }
+
+        function resetStats() {
+            gameState.userId = null;
+            gameState.playerName = localStorage.getItem('playerName') || 'لاعب';
+            gameState.stats = {
+                games: 0,
+                wins: 0,
+                fastestWin: null
+            };
+            updateStatsDisplay();
+            updatePlayerDisplay();
+        }
+
+        function loadLeaderboard() {
+            const leaderboardRef = database.ref('users').orderByChild('stats/wins').limitToLast(10);
+            
+            leaderboardRef.on('value', snapshot => {
+                const leaderboard = [];
+                snapshot.forEach(childSnapshot => {
+                    const userData = childSnapshot.val();
+                    if (userData.stats) {
+                        leaderboard.push({
+                            name: userData.name || 'زائر',
+                            avatar: userData.avatar || '👤',
+                            wins: userData.stats.wins || 0,
+                            fastestWin: userData.stats.fastestWin || '--'
+                        });
+                    }
+                });
+                
+                // ترتيب تنازلي حسب عدد مرات الفوز
+                leaderboard.sort((a, b) => b.wins - a.wins);
+                
+                // عرض أفضل 10
+                displayLeaderboard(leaderboard.slice(0, 10));
+            });
+        }
+
+        function displayLeaderboard(players) {
+            const leaderboardList = document.getElementById('leaderboardList');
+            
+            if (players.length === 0) {
+                leaderboardList.innerHTML = `
+                    <div class="leaderboard-item">
+                        <div class="leaderboard-rank">1</div>
+                        <div class="leaderboard-avatar">👤</div>
+                        <div class="leaderboard-name">لا يوجد لاعبين</div>
+                        <div class="leaderboard-stats">
+                            <span class="leaderboard-stat">🏆 0</span>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            leaderboardList.innerHTML = players.map((player, index) => `
+                <div class="leaderboard-item">
+                    <div class="leaderboard-rank">${index + 1}</div>
+                    <div class="leaderboard-avatar">${player.avatar}</div>
+                    <div class="leaderboard-name">${player.name}</div>
+                    <div class="leaderboard-stats">
+                        <span class="leaderboard-stat">🏆 ${player.wins}</span>
+                        ${player.fastestWin !== '--' ? `<span class="leaderboard-stat">⚡ ${player.fastestWin}ث</span>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function saveUserStats() {
+            if (!gameState.userId) return;
+            
+            const userRef = database.ref('users/' + gameState.userId);
+            userRef.update({
+                name: gameState.playerName,
+                stats: gameState.stats,
+                lastPlayed: Date.now()
+            });
+            
+            // تحديث لوحة المتصدرين
+            loadLeaderboard();
+        }
+
+        // ==================== قوائم JSON - تعديل ليكون 4 مجموعات فقط ====================
         const categories = {
             fruits: {
                 name: 'فواكه',
@@ -952,15 +2018,7 @@
                     { emoji: '🍎', name: 'تفاح' },
                     { emoji: '🍌', name: 'موز' },
                     { emoji: '🍊', name: 'برتقال' },
-                    { emoji: '🍇', name: 'عنب' },
-                    { emoji: '🍓', name: 'فراولة' },
-                    { emoji: '🍉', name: 'بطيخ' },
-                    { emoji: '🍒', name: 'كرز' },
-                    { emoji: '🍍', name: 'أناناس' },
-                    { emoji: '🥭', name: 'مانجو' },
-                    { emoji: '🍑', name: 'خوخ' },
-                    { emoji: '🍐', name: 'كمثرى' },
-                    { emoji: '🍋', name: 'ليمون' }
+                    { emoji: '🍇', name: 'عنب' }
                 ]
             },
             vegetables: {
@@ -969,14 +2027,8 @@
                 items: [
                     { emoji: '🥕', name: 'جزر' },
                     { emoji: '🥦', name: 'بروكلي' },
-                    { emoji: '🥬', name: 'خس' },
                     { emoji: '🍅', name: 'طماطم' },
-                    { emoji: '🥒', name: 'خيار' },
-                    { emoji: '🌽', name: 'ذرة' },
-                    { emoji: '🥔', name: 'بطاطس' },
-                    { emoji: '🧅', name: 'بصل' },
-                    { emoji: '🍆', name: 'باذنجان' },
-                    { emoji: '🫑', name: 'فلفل' }
+                    { emoji: '🥒', name: 'خيار' }
                 ]
             },
             animals: {
@@ -986,13 +2038,7 @@
                     { emoji: '🦁', name: 'أسد' },
                     { emoji: '🐯', name: 'نمر' },
                     { emoji: '🐘', name: 'فيل' },
-                    { emoji: '🦒', name: 'زرافة' },
-                    { emoji: '🐒', name: 'قرد' },
-                    { emoji: '🐪', name: 'جمل' },
-                    { emoji: '🐺', name: 'ذئب' },
-                    { emoji: '🦊', name: 'ثعلب' },
-                    { emoji: '🐼', name: 'باندا' },
-                    { emoji: '🐨', name: 'كوالا' }
+                    { emoji: '🦒', name: 'زرافة' }
                 ]
             },
             birds: {
@@ -1002,13 +2048,7 @@
                     { emoji: '🐦', name: 'عصفور' },
                     { emoji: '🦅', name: 'نسر' },
                     { emoji: '🦉', name: 'بومة' },
-                    { emoji: '🐧', name: 'بطريق' },
-                    { emoji: '🦩', name: 'فلامينجو' },
-                    { emoji: '🦚', name: 'طاووس' },
-                    { emoji: '🦜', name: 'ببغاء' },
-                    { emoji: '🐓', name: 'ديك' },
-                    { emoji: '🦢', name: 'بجعة' },
-                    { emoji: '🕊️', name: 'حمامة' }
+                    { emoji: '🐧', name: 'بطريق' }
                 ]
             },
             capitals: {
@@ -1018,19 +2058,14 @@
                     { emoji: '🇸🇦', name: 'الرياض' },
                     { emoji: '🇪🇬', name: 'القاهرة' },
                     { emoji: '🇦🇪', name: 'أبوظبي' },
-                    { emoji: '🇺🇸', name: 'واشنطن' },
-                    { emoji: '🇬🇧', name: 'لندن' },
-                    { emoji: '🇫🇷', name: 'باريس' },
-                    { emoji: '🇯🇵', name: 'طوكيو' },
-                    { emoji: '🇨🇳', name: 'بكين' },
-                    { emoji: '🇷🇺', name: 'موسكو' },
-                    { emoji: '🇩🇪', name: 'برلين' }
+                    { emoji: '🇺🇸', name: 'واشنطن' }
                 ]
             }
         };
 
         // ==================== بيانات اللعبة ====================
         const gameState = {
+            userId: null,
             playerName: localStorage.getItem('playerName') || 'لاعب',
             currentCategory: 'fruits',
             currentRound: 1,
@@ -1082,10 +2117,12 @@
 
         // ==================== التهيئة ====================
         function init() {
-            loadStats();
             gameState.players[0].name = gameState.playerName;
             updatePlayerDisplay();
             updateStatsDisplay();
+            
+            // تحميل لوحة المتصدرين
+            loadLeaderboard();
             
             function setHeight() {
                 const vh = window.innerHeight * 0.01;
@@ -1095,17 +2132,6 @@
             window.addEventListener('resize', setHeight);
             window.addEventListener('orientationchange', setHeight);
             setHeight();
-        }
-
-        function loadStats() {
-            const saved = localStorage.getItem('word4_stats');
-            if (saved) {
-                gameState.stats = JSON.parse(saved);
-            }
-        }
-
-        function saveStats() {
-            localStorage.setItem('word4_stats', JSON.stringify(gameState.stats));
         }
 
         function updateStatsDisplay() {
@@ -1125,12 +2151,20 @@
                 gameState.players[0].name = gameState.playerName;
                 localStorage.setItem('playerName', gameState.playerName);
                 updatePlayerDisplay();
+                
+                // حفظ الاسم الجديد في Firebase إذا كان المستخدم مسجل دخول
+                if (gameState.userId) {
+                    database.ref('users/' + gameState.userId).update({
+                        name: gameState.playerName
+                    });
+                }
+                
                 showToast('✅ تم تحديث الاسم', 'success');
                 playSound('click');
             }
         }
 
-        // ==================== بدء اللعبة ====================
+        // ==================== دوال اللعبة المعدلة ====================
         function startGame() {
             playSound('click');
             
@@ -1146,16 +2180,22 @@
             gameState.gameActive = true;
             gameState.stats.games++;
             
+            // حفظ الإحصائيات إذا كان المستخدم مسجل دخول
+            if (gameState.userId) {
+                saveUserStats();
+            }
+            
             initializeRound();
-            saveStats();
             updateStatsDisplay();
             showToast(`🎮 بدأت اللعبة - ${category.name}`, 'success');
         }
 
         function initializeRound() {
+            // إنشاء 16 كارت (4 مجموعات × 4 كروت)
             const deck = createDeck();
             const shuffled = shuffleArray([...deck]);
             
+            // توزيع 4 كروت لكل لاعب
             gameState.players.forEach((player, index) => {
                 const startIdx = index * 4;
                 gameState.cards[player.id] = shuffled.slice(startIdx, startIdx + 4);
@@ -1170,10 +2210,11 @@
             const deck = [];
             const category = categories[gameState.currentCategory];
             
-            category.items.forEach((item, index) => {
+            // كل صنف يتكرر 4 مرات (4 كروت متشابهة)
+            category.items.forEach((item) => {
                 for (let i = 0; i < 4; i++) {
                     deck.push({
-                        id: `card-${index}-${i}-${Date.now()}-${Math.random()}`,
+                        id: `card-${item.name}-${i}-${Date.now()}-${Math.random()}`,
                         emoji: item.emoji,
                         name: item.name,
                         category: gameState.currentCategory
@@ -1181,7 +2222,7 @@
                 }
             });
             
-            return deck;
+            return deck; // 16 كارت (4×4)
         }
 
         function shuffleArray(array) {
@@ -1304,7 +2345,7 @@
             }
         }
 
-        // ==================== تبادل البطاقات مع تأثيرات مذهلة ====================
+        // ==================== نظام التبادل بين اللاعبين ====================
         function exchangeCard(index, element) {
             if (!gameState.gameActive) {
                 showToast('اللعبة غير نشطة', 'warning');
@@ -1335,12 +2376,20 @@
             }, 600);
 
             const myCards = gameState.cards['player1'];
-            const deck = createDeck();
             
-            const newCard = deck[Math.floor(Math.random() * deck.length)];
-            const oldCard = myCards[index];
+            // اختيار بطاقة عشوائية من لاعب آخر
+            const otherPlayers = gameState.players.filter(p => p.id !== 'player1');
+            const randomPlayer = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
+            const otherPlayerCards = gameState.cards[randomPlayer.id];
+            const randomOtherIndex = Math.floor(Math.random() * otherPlayerCards.length);
             
-            myCards[index] = newCard;
+            // تبادل البطاقات
+            const myOldCard = myCards[index];
+            const otherOldCard = otherPlayerCards[randomOtherIndex];
+            
+            // التبادل
+            myCards[index] = otherOldCard;
+            otherPlayerCards[randomOtherIndex] = myOldCard;
             
             // تحديث مع تأثيرات
             setTimeout(() => {
@@ -1353,7 +2402,7 @@
                 newCardElement.classList.add('new-card');
                 setTimeout(() => newCardElement.classList.remove('new-card'), 500);
                 
-                showToast(`🔄 تم التبادل: ${oldCard.name} ← ${newCard.name}`, 'info');
+                showToast(`🔄 تم التبادل: ${myOldCard.name} ← ${otherOldCard.name} مع ${randomPlayer.name}`, 'info');
             }, 300);
             
             setTimeout(() => nextPlayer(), 700);
@@ -1385,8 +2434,18 @@
             const computerCards = gameState.cards[playerId];
             const randomIndex = Math.floor(Math.random() * computerCards.length);
             
-            const deck = createDeck();
-            computerCards[randomIndex] = deck[Math.floor(Math.random() * deck.length)];
+            // الكمبيوتر يتبادل مع لاعب عشوائي آخر
+            const otherPlayers = gameState.players.filter(p => p.id !== playerId);
+            const randomPlayer = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
+            const otherPlayerCards = gameState.cards[randomPlayer.id];
+            const randomOtherIndex = Math.floor(Math.random() * otherPlayerCards.length);
+            
+            // تبادل بطاقات الكمبيوتر
+            const computerOldCard = computerCards[randomIndex];
+            const otherOldCard = otherPlayerCards[randomOtherIndex];
+            
+            computerCards[randomIndex] = otherOldCard;
+            otherPlayerCards[randomOtherIndex] = computerOldCard;
             
             updatePlayersProgress();
             
@@ -1426,7 +2485,12 @@
                 if (!gameState.stats.fastestWin || winTime < gameState.stats.fastestWin) {
                     gameState.stats.fastestWin = winTime;
                 }
-                saveStats();
+                
+                // حفظ الإحصائيات إذا كان المستخدم مسجل دخول
+                if (gameState.userId) {
+                    saveUserStats();
+                }
+                
                 updateStatsDisplay();
             }
 
@@ -1577,12 +2641,13 @@
             setTimeout(() => confettiContainer.remove(), 4000);
         }
 
-        function showInstructions() {
+               function showInstructions() {
             playSound('click');
-            showToast('🎯 اجمع 4 بطاقات متطابقة للفوز! اضغط على أي بطاقة لتبديلها', 'info');
+            showToast('🎯 الهدف: جمع 4 كروت متشابهة - التبادل يتم مع اللاعبين الآخرين', 'info');
         }
 
-        // ==================== تشغيل الكمبيوتر ====================
+        // ==================== تشغيل اللعبة ====================
+        // دالة للتحكم في دور الكمبيوتر
         setInterval(() => {
             if (!gameState.gameActive) return;
             
@@ -1590,7 +2655,7 @@
             if (currentPlayer.id !== 'player1') {
                 computerPlay(currentPlayer.id);
             }
-        }, 3000);
+        }, 3500); // زيادة الوقت قليلاً ليكون أكثر واقعية
 
         // ==================== منع القوائم الافتراضية ====================
         document.addEventListener('contextmenu', e => e.preventDefault());
@@ -1598,6 +2663,142 @@
 
         // تهيئة اللعبة
         init();
+
+        // دالة إضافية لإعادة تعيين اللعبة بالكامل
+        function resetGame() {
+            if (confirm('هل أنت متأكد من إعادة تعيين اللعبة؟')) {
+                gameState.cards = {};
+                gameState.currentRound = 1;
+                gameState.currentPlayerIndex = 0;
+                gameState.gameActive = false;
+                gameState.stats = {
+                    games: 0,
+                    wins: 0,
+                    fastestWin: null
+                };
+                
+                if (gameState.userId) {
+                    saveUserStats();
+                }
+                
+                updateStatsDisplay();
+                showToast('🔄 تم إعادة تعيين اللعبة', 'info');
+                
+                // العودة للشاشة الرئيسية
+                endGame();
+            }
+        }
+
+        // دالة لمشاركة النتيجة
+        function shareResult() {
+            if (!gameState.stats.wins && !gameState.stats.games) {
+                showToast('لا توجد نتائج للمشاركة بعد', 'warning');
+                return;
+            }
+            
+            const text = `🎮 لعبة الكلمات الأربعة\n🏆 فوز: ${gameState.stats.wins}\n🎯 ألعاب: ${gameState.stats.games}\n⚡ أسرع فوز: ${gameState.stats.fastestWin ? gameState.stats.fastestWin + 'ث' : '--'}`;
+            
+            // محاولة استخدام Web Share API
+            if (navigator.share) {
+                navigator.share({
+                    title: 'نتيجتي في لعبة الكلمات الأربعة',
+                    text: text
+                }).catch(() => {
+                    copyToClipboard(text);
+                });
+            } else {
+                copyToClipboard(text);
+            }
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('📋 تم نسخ النتيجة', 'success');
+            }).catch(() => {
+                showToast('❌ فشل النسخ', 'error');
+            });
+        }
+
+        // دالة لتشغيل الموسيقى (اختياري)
+        function toggleMusic() {
+            // يمكن إضافة موسيقى خلفية هنا
+            showToast('🎵 قريباً...', 'info');
+        }
+
+        // دالة لتغيير اللغة (للإصدارات المستقبلية)
+        function toggleLanguage() {
+            showToast('🌐 قريباً...', 'info');
+        }
+
+        // دالة لحفظ اللعبة مؤقتاً
+        function saveGameProgress() {
+            if (!gameState.gameActive) {
+                showToast('لا توجد لعبة نشطة', 'warning');
+                return;
+            }
+            
+            const progress = {
+                cards: gameState.cards,
+                currentRound: gameState.currentRound,
+                currentPlayerIndex: gameState.currentPlayerIndex,
+                timeLeft: gameState.timeLeft,
+                category: gameState.currentCategory
+            };
+            
+            localStorage.setItem('savedGame', JSON.stringify(progress));
+            showToast('💾 تم حفظ التقدم', 'success');
+        }
+
+        // دالة لتحميل اللعبة المحفوظة
+        function loadSavedGame() {
+            const saved = localStorage.getItem('savedGame');
+            if (!saved) {
+                showToast('لا توجد لعبة محفوظة', 'warning');
+                return;
+            }
+            
+            try {
+                const progress = JSON.parse(saved);
+                gameState.currentCategory = progress.category;
+                gameState.currentRound = progress.currentRound;
+                gameState.currentPlayerIndex = progress.currentPlayerIndex;
+                gameState.cards = progress.cards;
+                gameState.timeLeft = progress.timeLeft;
+                gameState.gameActive = true;
+                
+                // تحديث الواجهة
+                document.getElementById('startScreen').classList.add('hidden');
+                document.getElementById('gameScreen').classList.remove('hidden');
+                
+                const category = categories[gameState.currentCategory];
+                document.getElementById('categoryIcon').textContent = category.icon;
+                document.getElementById('categoryName').textContent = category.name;
+                
+                updateDisplay();
+                startTimer(gameState.timeLeft);
+                updateRoundDisplay();
+                
+                showToast('✅ تم تحميل اللعبة', 'success');
+            } catch (e) {
+                showToast('❌ فشل تحميل اللعبة', 'error');
+            }
+        }
     </script>
+
+    <!-- إضافة أزرار إضافية في شاشة البداية (اختياري) -->
+    <div style="display: none;"> <!-- هذه الأزرار يمكن إضافتها للواجهة إذا أردت -->
+        <button class="btn-modern btn-secondary-modern" onclick="resetGame()">
+            <span>🔄</span> إعادة تعيين
+        </button>
+        <button class="btn-modern btn-secondary-modern" onclick="shareResult()">
+            <span>📤</span> مشاركة
+        </button>
+        <button class="btn-modern btn-secondary-modern" onclick="saveGameProgress()">
+            <span>💾</span> حفظ
+        </button>
+        <button class="btn-modern btn-secondary-modern" onclick="loadSavedGame()">
+            <span>📂</span> تحميل
+        </button>
+    </div>
 </body>
 </html>
