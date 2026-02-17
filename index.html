@@ -11,6 +11,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     
     <style>
+        /* (نفس التنسيقات الموجودة - لم يتم تغييرها للاختصار) */
         * {
             margin: 0;
             padding: 0;
@@ -989,11 +990,8 @@
     </style>
 </head>
 <body>
-    <!-- عناصر الصوت المخفية -->
-    <audio id="soundClick" preload="auto" style="display: none;"></audio>
-    <audio id="soundWin" preload="auto" style="display: none;"></audio>
-    <audio id="soundPass" preload="auto" style="display: none;"></audio>
-    <audio id="soundTimer" preload="auto" style="display: none;"></audio>
+    <!-- عناصر الصوت المخفية (سيتم إنشاؤها برمجياً) -->
+    <div style="display: none;"></div>
 
     <div class="game-container">
         <!-- شاشة تسجيل الدخول -->
@@ -1249,22 +1247,107 @@
         const auth = firebase.auth();
         const database = firebase.database();
 
-        // ==================== عناصر الصوت ====================
-        const sounds = {
-            click: document.getElementById('soundClick'),
-            win: document.getElementById('soundWin'),
-            pass: document.getElementById('soundPass'),
-            timer: document.getElementById('soundTimer')
-        };
+        // ==================== نظام الصوت المحسن ====================
+        const soundContext = new (window.AudioContext || window.webkitAudioContext)();
+        const sounds = {};
+
+        function initSounds() {
+            // صوت النقر
+            sounds.click = {
+                play: function() {
+                    try {
+                        const osc = soundContext.createOscillator();
+                        const gain = soundContext.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.value = 800;
+                        gain.gain.value = 0.1;
+                        osc.connect(gain);
+                        gain.connect(soundContext.destination);
+                        osc.start();
+                        osc.stop(soundContext.currentTime + 0.1);
+                    } catch (e) {}
+                }
+            };
+
+            // صوت الفوز
+            sounds.win = {
+                play: function() {
+                    try {
+                        const osc = soundContext.createOscillator();
+                        const gain = soundContext.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.value = 600;
+                        gain.gain.value = 0.15;
+                        osc.connect(gain);
+                        gain.connect(soundContext.destination);
+                        osc.start();
+                        
+                        setTimeout(() => {
+                            osc.frequency.value = 800;
+                        }, 100);
+                        setTimeout(() => {
+                            osc.frequency.value = 1000;
+                        }, 200);
+                        
+                        osc.stop(soundContext.currentTime + 0.3);
+                    } catch (e) {}
+                }
+            };
+
+            // صوت التمرير
+            sounds.pass = {
+                play: function() {
+                    try {
+                        const osc = soundContext.createOscillator();
+                        const gain = soundContext.createGain();
+                        osc.type = 'sawtooth';
+                        osc.frequency.value = 400;
+                        gain.gain.value = 0.1;
+                        gain.gain.exponentialRampToValueAtTime(0.01, soundContext.currentTime + 0.2);
+                        osc.connect(gain);
+                        gain.connect(soundContext.destination);
+                        osc.start();
+                        osc.stop(soundContext.currentTime + 0.2);
+                    } catch (e) {}
+                }
+            };
+
+            // صوت المؤقت
+            sounds.timer = {
+                play: function() {
+                    try {
+                        const osc = soundContext.createOscillator();
+                        const gain = soundContext.createGain();
+                        osc.type = 'square';
+                        osc.frequency.value = 600;
+                        gain.gain.value = 0.1;
+                        osc.connect(gain);
+                        gain.connect(soundContext.destination);
+                        osc.start();
+                        osc.stop(soundContext.currentTime + 0.15);
+                    } catch (e) {}
+                }
+            };
+        }
 
         function playSound(soundName) {
             try {
                 if (sounds[soundName]) {
-                    sounds[soundName].currentTime = 0;
-                    sounds[soundName].play().catch(e => console.log('صوت متوقف:', e));
+                    sounds[soundName].play();
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.log('خطأ في تشغيل الصوت:', e);
+            }
         }
+
+        // تهيئة الصوت عند أول تفاعل
+        document.addEventListener('click', function initAudio() {
+            if (soundContext.state === 'suspended') {
+                soundContext.resume();
+            }
+            initSounds();
+            document.removeEventListener('click', initAudio);
+        }, { once: true });
 
         // ==================== متغيرات اللعبة ====================
         const gameState = {
@@ -1313,169 +1396,169 @@
         };
 
         // قوائم الفئات
-       const categories = {
-  fruits: {
-    name: 'فواكه',
-    icon: '🍎',
-    items: [
-      { emoji: '🍎', name: 'تفاح' },
-      { emoji: '🍌', name: 'موز' },
-      { emoji: '🍊', name: 'برتقال' },
-      { emoji: '🍇', name: 'عنب' },
-      { emoji: '🍓', name: 'فراولة' },
-      { emoji: '🍉', name: 'بطيخ' },
-      { emoji: '🍍', name: 'أناناس' },
-      { emoji: '🥭', name: 'مانجو' },
-      { emoji: '🍑', name: 'خوخ' },
-      { emoji: '🍒', name: 'كرز' },
-      { emoji: '🥝', name: 'كيوي' },
-      { emoji: '🍐', name: 'كمثرى' },
-      { emoji: '🍋', name: 'ليمون' },
-      { emoji: '🍈', name: 'شمام' },
-      { emoji: '🫐', name: 'توت أزرق' },
-      { emoji: '🥥', name: 'جوز الهند' },
-      { emoji: '🍏', name: 'تفاح أخضر' },
-      { emoji: '🍅', name: 'طماطم' },
-      { emoji: '🍊', name: 'يوسفي' },
-      { emoji: '🍇', name: 'زبيب' }
-    ]
-  },
+        const categories = {
+            fruits: {
+                name: 'فواكه',
+                icon: '🍎',
+                items: [
+                    { emoji: '🍎', name: 'تفاح' },
+                    { emoji: '🍌', name: 'موز' },
+                    { emoji: '🍊', name: 'برتقال' },
+                    { emoji: '🍇', name: 'عنب' },
+                    { emoji: '🍓', name: 'فراولة' },
+                    { emoji: '🍉', name: 'بطيخ' },
+                    { emoji: '🍍', name: 'أناناس' },
+                    { emoji: '🥭', name: 'مانجو' },
+                    { emoji: '🍑', name: 'خوخ' },
+                    { emoji: '🍒', name: 'كرز' },
+                    { emoji: '🥝', name: 'كيوي' },
+                    { emoji: '🍐', name: 'كمثرى' },
+                    { emoji: '🍋', name: 'ليمون' },
+                    { emoji: '🍈', name: 'شمام' },
+                    { emoji: '🫐', name: 'توت أزرق' },
+                    { emoji: '🥥', name: 'جوز الهند' },
+                    { emoji: '🍏', name: 'تفاح أخضر' },
+                    { emoji: '🍅', name: 'طماطم' },
+                    { emoji: '🍊', name: 'يوسفي' },
+                    { emoji: '🍇', name: 'زبيب' }
+                ]
+            },
 
-  vegetables: {
-    name: 'خضروات',
-    icon: '🥕',
-    items: [
-      { emoji: '🥕', name: 'جزر' },
-      { emoji: '🥦', name: 'بروكلي' },
-      { emoji: '🍅', name: 'طماطم' },
-      { emoji: '🥒', name: 'خيار' },
-      { emoji: '🌽', name: 'ذرة' },
-      { emoji: '🥬', name: 'خس' },
-      { emoji: '🫑', name: 'فلفل' },
-      { emoji: '🧅', name: 'بصل' },
-      { emoji: '🧄', name: 'ثوم' },
-      { emoji: '🥔', name: 'بطاطس' },
-      { emoji: '🍆', name: 'باذنجان' },
-      { emoji: '🍠', name: 'بطاطا' },
-      { emoji: '🫘', name: 'فاصوليا' },
-      { emoji: '🥦', name: 'قرنبيط' },
-      { emoji: '🥒', name: 'كوسة' },
-      { emoji: '🥬', name: 'سبانخ' },
-      { emoji: '🍄', name: 'فطر' },
-      { emoji: '🫑', name: 'فلفل رومي' },
-      { emoji: '🥗', name: 'سلطة' },
-      { emoji: '🥕', name: 'جزر صغير' }
-    ]
-  },
+            vegetables: {
+                name: 'خضروات',
+                icon: '🥕',
+                items: [
+                    { emoji: '🥕', name: 'جزر' },
+                    { emoji: '🥦', name: 'بروكلي' },
+                    { emoji: '🍅', name: 'طماطم' },
+                    { emoji: '🥒', name: 'خيار' },
+                    { emoji: '🌽', name: 'ذرة' },
+                    { emoji: '🥬', name: 'خس' },
+                    { emoji: '🫑', name: 'فلفل' },
+                    { emoji: '🧅', name: 'بصل' },
+                    { emoji: '🧄', name: 'ثوم' },
+                    { emoji: '🥔', name: 'بطاطس' },
+                    { emoji: '🍆', name: 'باذنجان' },
+                    { emoji: '🍠', name: 'بطاطا' },
+                    { emoji: '🫘', name: 'فاصوليا' },
+                    { emoji: '🥦', name: 'قرنبيط' },
+                    { emoji: '🥒', name: 'كوسة' },
+                    { emoji: '🥬', name: 'سبانخ' },
+                    { emoji: '🍄', name: 'فطر' },
+                    { emoji: '🫑', name: 'فلفل رومي' },
+                    { emoji: '🥗', name: 'سلطة' },
+                    { emoji: '🥕', name: 'جزر صغير' }
+                ]
+            },
 
-  animals: {
-    name: 'حيوانات',
-    icon: '🦁',
-    items: [
-      { emoji: '🦁', name: 'أسد' },
-      { emoji: '🐯', name: 'نمر' },
-      { emoji: '🐘', name: 'فيل' },
-      { emoji: '🦒', name: 'زرافة' },
-      { emoji: '🐶', name: 'كلب' },
-      { emoji: '🐱', name: 'قطة' },
-      { emoji: '🐴', name: 'حصان' },
-      { emoji: '🐮', name: 'بقرة' },
-      { emoji: '🐷', name: 'خنزير' },
-      { emoji: '🐵', name: 'قرد' },
-      { emoji: '🐼', name: 'باندا' },
-      { emoji: '🐻', name: 'دب' },
-      { emoji: '🐨', name: 'كوالا' },
-      { emoji: '🦊', name: 'ثعلب' },
-      { emoji: '🐰', name: 'أرنب' },
-      { emoji: '🐸', name: 'ضفدع' },
-      { emoji: '🐺', name: 'ذئب' },
-      { emoji: '🦓', name: 'حمار وحشي' },
-      { emoji: '🦛', name: 'فرس النهر' },
-      { emoji: '🦏', name: 'وحيد القرن' }
-    ]
-  },
+            animals: {
+                name: 'حيوانات',
+                icon: '🦁',
+                items: [
+                    { emoji: '🦁', name: 'أسد' },
+                    { emoji: '🐯', name: 'نمر' },
+                    { emoji: '🐘', name: 'فيل' },
+                    { emoji: '🦒', name: 'زرافة' },
+                    { emoji: '🐶', name: 'كلب' },
+                    { emoji: '🐱', name: 'قطة' },
+                    { emoji: '🐴', name: 'حصان' },
+                    { emoji: '🐮', name: 'بقرة' },
+                    { emoji: '🐷', name: 'خنزير' },
+                    { emoji: '🐵', name: 'قرد' },
+                    { emoji: '🐼', name: 'باندا' },
+                    { emoji: '🐻', name: 'دب' },
+                    { emoji: '🐨', name: 'كوالا' },
+                    { emoji: '🦊', name: 'ثعلب' },
+                    { emoji: '🐰', name: 'أرنب' },
+                    { emoji: '🐸', name: 'ضفدع' },
+                    { emoji: '🐺', name: 'ذئب' },
+                    { emoji: '🦓', name: 'حمار وحشي' },
+                    { emoji: '🦛', name: 'فرس النهر' },
+                    { emoji: '🦏', name: 'وحيد القرن' }
+                ]
+            },
 
-  birds: {
-    name: 'طيور',
-    icon: '🐦',
-    items: [
-      { emoji: '🐦', name: 'عصفور' },
-      { emoji: '🦅', name: 'نسر' },
-      { emoji: '🦉', name: 'بومة' },
-      { emoji: '🐧', name: 'بطريق' },
-      { emoji: '🦜', name: 'ببغاء' },
-      { emoji: '🦢', name: 'بجعة' },
-      { emoji: '🦩', name: 'فلامنجو' },
-      { emoji: '🐓', name: 'ديك' },
-      { emoji: '🦤', name: 'طائر الدودو' },
-      { emoji: '🐦', name: 'حمامة' },
-      { emoji: '🦆', name: 'بطة' },
-      { emoji: '🦚', name: 'طاووس' },
-      { emoji: '🪿', name: 'إوز' },
-      { emoji: '🐤', name: 'كتكوت' },
-      { emoji: '🐦', name: 'غراب' },
-      { emoji: '🦅', name: 'صقر' },
-      { emoji: '🐦', name: 'سنونو' },
-      { emoji: '🐦', name: 'عندليب' },
-      { emoji: '🐦', name: 'كناري' },
-      { emoji: '🐦', name: 'لقلق' }
-    ]
-  },
+            birds: {
+                name: 'طيور',
+                icon: '🐦',
+                items: [
+                    { emoji: '🐦', name: 'عصفور' },
+                    { emoji: '🦅', name: 'نسر' },
+                    { emoji: '🦉', name: 'بومة' },
+                    { emoji: '🐧', name: 'بطريق' },
+                    { emoji: '🦜', name: 'ببغاء' },
+                    { emoji: '🦢', name: 'بجعة' },
+                    { emoji: '🦩', name: 'فلامنجو' },
+                    { emoji: '🐓', name: 'ديك' },
+                    { emoji: '🦤', name: 'طائر الدودو' },
+                    { emoji: '🐦', name: 'حمامة' },
+                    { emoji: '🦆', name: 'بطة' },
+                    { emoji: '🦚', name: 'طاووس' },
+                    { emoji: '🪿', name: 'إوز' },
+                    { emoji: '🐤', name: 'كتكوت' },
+                    { emoji: '🐦', name: 'غراب' },
+                    { emoji: '🦅', name: 'صقر' },
+                    { emoji: '🐦', name: 'سنونو' },
+                    { emoji: '🐦', name: 'عندليب' },
+                    { emoji: '🐦', name: 'كناري' },
+                    { emoji: '🐦', name: 'لقلق' }
+                ]
+            },
 
-  colors: {
-    name: 'ألوان',
-    icon: '🎨',
-    items: [
-      { emoji: '🔴', name: 'أحمر' },
-      { emoji: '🟠', name: 'برتقالي' },
-      { emoji: '🟡', name: 'أصفر' },
-      { emoji: '🟢', name: 'أخضر' },
-      { emoji: '🔵', name: 'أزرق' },
-      { emoji: '🟣', name: 'بنفسجي' },
-      { emoji: '⚫', name: 'أسود' },
-      { emoji: '⚪', name: 'أبيض' },
-      { emoji: '🟤', name: 'بني' },
-      { emoji: '🩷', name: 'وردي' },
-      { emoji: '🩶', name: 'رمادي' },
-      { emoji: '🟦', name: 'أزرق سماوي' },
-      { emoji: '🟩', name: 'أخضر فاتح' },
-      { emoji: '🟨', name: 'أصفر فاتح' },
-      { emoji: '🟥', name: 'أحمر غامق' },
-      { emoji: '🟧', name: 'برتقالي فاتح' },
-      { emoji: '🟪', name: 'موف' },
-      { emoji: '🔷', name: 'تركواز' },
-      { emoji: '🟫', name: 'بيج' },
-      { emoji: '✨', name: 'ذهبي' }
-    ]
-  },
+            colors: {
+                name: 'ألوان',
+                icon: '🎨',
+                items: [
+                    { emoji: '🔴', name: 'أحمر' },
+                    { emoji: '🟠', name: 'برتقالي' },
+                    { emoji: '🟡', name: 'أصفر' },
+                    { emoji: '🟢', name: 'أخضر' },
+                    { emoji: '🔵', name: 'أزرق' },
+                    { emoji: '🟣', name: 'بنفسجي' },
+                    { emoji: '⚫', name: 'أسود' },
+                    { emoji: '⚪', name: 'أبيض' },
+                    { emoji: '🟤', name: 'بني' },
+                    { emoji: '🩷', name: 'وردي' },
+                    { emoji: '🩶', name: 'رمادي' },
+                    { emoji: '🟦', name: 'أزرق سماوي' },
+                    { emoji: '🟩', name: 'أخضر فاتح' },
+                    { emoji: '🟨', name: 'أصفر فاتح' },
+                    { emoji: '🟥', name: 'أحمر غامق' },
+                    { emoji: '🟧', name: 'برتقالي فاتح' },
+                    { emoji: '🟪', name: 'موف' },
+                    { emoji: '🔷', name: 'تركواز' },
+                    { emoji: '🟫', name: 'بيج' },
+                    { emoji: '✨', name: 'ذهبي' }
+                ]
+            },
 
-  capitals: {
-    name: 'عواصم',
-    icon: '🏛️',
-    items: [
-      { emoji: '🇪🇬', name: 'القاهرة' },
-      { emoji: '🇸🇦', name: 'الرياض' },
-      { emoji: '🇦🇪', name: 'أبوظبي' },
-      { emoji: '🇶🇦', name: 'الدوحة' },
-      { emoji: '🇰🇼', name: 'الكويت' },
-      { emoji: '🇧🇭', name: 'المنامة' },
-      { emoji: '🇴🇲', name: 'مسقط' },
-      { emoji: '🇯🇴', name: 'عمّان' },
-      { emoji: '🇱🇧', name: 'بيروت' },
-      { emoji: '🇸🇾', name: 'دمشق' },
-      { emoji: '🇮🇶', name: 'بغداد' },
-      { emoji: '🇾🇪', name: 'صنعاء' },
-      { emoji: '🇲🇦', name: 'الرباط' },
-      { emoji: '🇩🇿', name: 'الجزائر' },
-      { emoji: '🇹🇳', name: 'تونس' },
-      { emoji: '🇱🇾', name: 'طرابلس' },
-      { emoji: '🇸🇩', name: 'الخرطوم' },
-      { emoji: '🇹🇷', name: 'أنقرة' },
-      { emoji: '🇫🇷', name: 'باريس' },
-      { emoji: '🇬🇧', name: 'لندن' }
-    ]
-  }
-};
+            capitals: {
+                name: 'عواصم',
+                icon: '🏛️',
+                items: [
+                    { emoji: '🇪🇬', name: 'القاهرة' },
+                    { emoji: '🇸🇦', name: 'الرياض' },
+                    { emoji: '🇦🇪', name: 'أبوظبي' },
+                    { emoji: '🇶🇦', name: 'الدوحة' },
+                    { emoji: '🇰🇼', name: 'الكويت' },
+                    { emoji: '🇧🇭', name: 'المنامة' },
+                    { emoji: '🇴🇲', name: 'مسقط' },
+                    { emoji: '🇯🇴', name: 'عمّان' },
+                    { emoji: '🇱🇧', name: 'بيروت' },
+                    { emoji: '🇸🇾', name: 'دمشق' },
+                    { emoji: '🇮🇶', name: 'بغداد' },
+                    { emoji: '🇾🇪', name: 'صنعاء' },
+                    { emoji: '🇲🇦', name: 'الرباط' },
+                    { emoji: '🇩🇿', name: 'الجزائر' },
+                    { emoji: '🇹🇳', name: 'تونس' },
+                    { emoji: '🇱🇾', name: 'طرابلس' },
+                    { emoji: '🇸🇩', name: 'الخرطوم' },
+                    { emoji: '🇹🇷', name: 'أنقرة' },
+                    { emoji: '🇫🇷', name: 'باريس' },
+                    { emoji: '🇬🇧', name: 'لندن' }
+                ]
+            }
+        };
 
         // ==================== دوال Firebase والمصادقة ====================
         function switchAuthTab(tab) {
@@ -1843,7 +1926,7 @@
             });
         }
 
-        // ==================== نظام التمرير ====================
+        // ==================== نظام التمرير المحسن ====================
         function startPassingPhase(playerId) {
             if (!gameState.gameActive || gameState.winState.isActive) return;
             
@@ -1878,18 +1961,59 @@
             let indexToPass = 0;
             
             if (gameState.difficulty === 'easy') {
+                // في المستوى السهل: يمرر كارت عشوائي
                 indexToPass = Math.floor(Math.random() * cards.length);
             } else {
+                // في المستوى المتوسط والصعب: استراتيجية أفضل لتحقيق الفوز
                 const counts = {};
                 cards.forEach(c => { counts[c.name] = (counts[c.name] || 0) + 1; });
                 
+                // البحث عن الكروت ذات الأولوية المنخفضة (التي لديه منها أقل عدد)
                 let minCount = 5;
+                let candidates = [];
+                
                 cards.forEach((card, index) => {
-                    if (counts[card.name] < minCount) {
-                        minCount = counts[card.name];
-                        indexToPass = index;
+                    const count = counts[card.name] || 0;
+                    if (count < minCount) {
+                        minCount = count;
+                        candidates = [index];
+                    } else if (count === minCount) {
+                        candidates.push(index);
                     }
                 });
+                
+                // اختيار عشوائي من الكروت ذات الأولوية المنخفضة
+                if (candidates.length > 0) {
+                    indexToPass = candidates[Math.floor(Math.random() * candidates.length)];
+                } else {
+                    indexToPass = 0;
+                }
+                
+                // في المستوى الصعب: أحياناً يمرر كارت استراتيجي
+                if (gameState.difficulty === 'hard' && Math.random() < 0.3) {
+                    // يمرر كارت قد يمنع الآخرين من الفوز
+                    for (let i = 0; i < cards.length; i++) {
+                        const card = cards[i];
+                        let isDangerous = false;
+                        
+                        // تحقق إذا كان هذا الكارت يساعد لاعب آخر
+                        for (let player of gameState.players) {
+                            if (player.id !== robotId) {
+                                const otherCards = gameState.cards[player.id] || [];
+                                const otherCount = otherCards.filter(c => c.name === card.name).length;
+                                if (otherCount >= 3) {
+                                    isDangerous = true;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        if (isDangerous) {
+                            indexToPass = i;
+                            break;
+                        }
+                    }
+                }
             }
             
             setTimeout(() => {
@@ -2009,8 +2133,28 @@
             const playerId = gameState.passState.playerId;
             const cards = gameState.cards[playerId];
             
+            // اختيار أفضل كارت للتمرير تلقائياً
+            let bestIndex = 0;
+            
+            if (playerId === 'player') {
+                // للاعب: اختر كارت عشوائي
+                bestIndex = Math.floor(Math.random() * cards.length);
+            } else {
+                // للروبوت: استخدم نفس منطق الروبوت
+                const counts = {};
+                cards.forEach(c => { counts[c.name] = (counts[c.name] || 0) + 1; });
+                
+                let minCount = 5;
+                cards.forEach((card, index) => {
+                    if (counts[card.name] < minCount) {
+                        minCount = counts[card.name];
+                        bestIndex = index;
+                    }
+                });
+            }
+            
             showToast('⚠️ انتهاء الوقت - تمرير تلقائي', 'warning');
-            executePass(playerId, 0);
+            executePass(playerId, bestIndex);
         }
 
         function endPassingPhase() {
@@ -2034,9 +2178,9 @@
             });
         }
 
-        // ==================== نظام الفوز - تم إصلاحه ====================
+        // ==================== نظام الفوز المحسن ====================
         function checkWinCondition() {
-            if (gameState.winState.isActive) return; // إذا الفوز نشط بالفعل، لا نفعل شيئاً
+            if (gameState.winState.isActive) return;
             
             for (let player of gameState.players) {
                 const cards = gameState.cards[player.id];
@@ -2050,8 +2194,13 @@
                 const maxSame = Math.max(...Object.values(counts), 0);
                 
                 if (maxSame >= 4) {
-                    activateWinPhase(player.id);
-                    return; // نخرج فوراً بعد تفعيل الفوز
+                    // تأخير بسيط للتأكد من عدم وجود تداخل
+                    setTimeout(() => {
+                        if (!gameState.winState.isActive) {
+                            activateWinPhase(player.id);
+                        }
+                    }, 100);
+                    return;
                 }
             }
         }
@@ -2059,24 +2208,20 @@
         function activateWinPhase(firstWinnerId) {
             playSound('win');
             
-            // إيقاف كل شيء
             gameState.winState.isActive = true;
             gameState.winState.firstWinner = firstWinnerId;
             gameState.winState.startTime = Date.now();
             gameState.winState.winners = [firstWinnerId];
             gameState.winState.pressTimes = { [firstWinnerId]: 0 };
             
-            // إيقاف التمرير والمؤقت العام
             endPassingPhase();
             stopTimer();
             
-            // تفعيل أزرار الفوز
             document.querySelectorAll('.win-button').forEach(btn => {
                 btn.disabled = false;
                 btn.classList.add('pulse');
             });
             
-            // تعطيل زر الفائز الأول
             const winnerBtn = document.getElementById(`winBtn-${firstWinnerId}`);
             if (winnerBtn) {
                 winnerBtn.disabled = true;
@@ -2087,7 +2232,6 @@
             const winner = gameState.players.find(p => p.id === firstWinnerId);
             showToast(`🏆 ${winner.name} جمع 4 أوراق! الآخرون يضغطون!`, 'warning');
             
-            // الروبوتات تضغط حسب مستوى الصعوبة
             gameState.players.forEach(player => {
                 if (player.type === 'robot' && player.id !== firstWinnerId) {
                     let delay = 1500;
@@ -2098,7 +2242,6 @@
                 }
             });
             
-            // انتهاء المهلة بعد 3 ثواني
             setTimeout(() => {
                 if (gameState.winState.isActive) {
                     endWinPhase();
@@ -2471,7 +2614,7 @@
 
         function showInstructions() {
             playSound('click');
-            showToast('🎯 الهدف: جمع 4 أوراق متشابهة. مرر بطاقة كل 5 ثواني عنما يظهر لديك كرت خامس اختر احد الكروت لتمريره ، عندما يفوز غيرك بالمركز الاول سارع بالضغط لتكون الفائز الثاني!', 'info');
+            showToast('🎯 الهدف: جمع 4 أوراق متشابهة. مرر بطاقة كل 5 ثواني. عندما يفوز غيرك بالمركز الاول سارع بالضغط لتكون الفائز الثاني!', 'info');
         }
 
         // تهيئة اللعبة
