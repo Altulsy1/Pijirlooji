@@ -2,55 +2,28 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#6C5CE7">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>🎮 الكلمات الاربعة - لعبة الكلمات المتعددة</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🎮 الكلمات الاربعة </title>
     
-    <!-- Firebase SDKs -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     
     <style>
-        /* ===== المتغيرات والثيمات ===== */
-        :root {
-            --primary: #6C5CE7;
-            --primary-dark: #5649C0;
-            --secondary: #00D2FF;
-            --success: #00B894;
-            --danger: #FF7675;
-            --warning: #FDCB6E;
-            --dark: #2D3436;
-            --light: #F5F6FA;
-            --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
-            --gradient-success: linear-gradient(135deg, var(--success), var(--secondary));
-            --gradient-danger: linear-gradient(135deg, var(--danger), #FF6B6B);
-            --shadow: 0 10px 30px rgba(108, 92, 231, 0.2);
-            --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.2);
-            --radius: 20px;
-            --radius-sm: 12px;
-            --transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', 'Cairo', Tahoma, Geneva, Verdana, sans-serif;
-            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e1e2f, #2a2a40);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 0;
-            margin: 0;
-            overflow-x: hidden;
         }
 
         .game-container {
@@ -60,17 +33,10 @@
             background: linear-gradient(135deg, #667eea, #764ba2);
             position: relative;
             overflow-y: auto;
-            overflow-x: hidden;
             box-shadow: 0 0 50px rgba(0,0,0,0.3);
         }
 
-        @supports (-webkit-touch-callout: none) {
-            .game-container {
-                height: -webkit-fill-available;
-            }
-        }
-
-        /* ===== شاشة تسجيل الدخول الجديدة ===== */
+        /* ===== أنماط شاشة تسجيل الدخول ===== */
         .auth-screen {
             position: absolute;
             top: 0;
@@ -84,7 +50,7 @@
             align-items: center;
             padding: 20px;
             z-index: 2000;
-            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
+            transition: transform 0.5s ease, opacity 0.5s ease;
         }
 
         .auth-screen.hidden {
@@ -96,25 +62,12 @@
         .auth-card {
             background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
             border-radius: 40px;
             padding: 30px 25px;
             width: 100%;
             max-width: 400px;
             border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-            animation: slideInUp 0.8s ease;
-        }
-
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .auth-header {
@@ -133,8 +86,6 @@
             font-size: 3.5rem;
             margin: 0 auto 20px;
             border: 4px solid white;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            animation: pulse-glow 2s infinite;
         }
 
         .auth-title {
@@ -142,7 +93,6 @@
             font-size: 2rem;
             font-weight: 800;
             margin-bottom: 10px;
-            text-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
         .auth-subtitle {
@@ -172,7 +122,7 @@
 
         .auth-tab.active {
             background: white;
-            color: var(--primary);
+            color: #667eea;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
@@ -222,28 +172,12 @@
             color: rgba(255,255,255,0.6);
         }
 
-        .password-toggle {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: white;
-            cursor: pointer;
-            font-size: 1.2rem;
-            opacity: 0.8;
-            transition: all 0.3s;
-        }
-
-        .password-toggle:hover {
-            opacity: 1;
-        }
-
         .auth-button {
             padding: 16px;
             background: white;
             border: none;
             border-radius: 50px;
-            color: var(--primary);
+            color: #667eea;
             font-size: 1.1rem;
             font-weight: 700;
             cursor: pointer;
@@ -258,93 +192,6 @@
         .auth-button:hover {
             transform: translateY(-3px);
             box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-        }
-
-        .auth-button:active {
-            transform: translateY(0);
-        }
-
-        .auth-divider {
-            text-align: center;
-            color: white;
-            margin: 20px 0;
-            position: relative;
-        }
-
-        .auth-divider::before,
-        .auth-divider::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            width: 45%;
-            height: 1px;
-            background: rgba(255,255,255,0.3);
-        }
-
-        .auth-divider::before {
-            right: 0;
-        }
-
-        .auth-divider::after {
-            left: 0;
-        }
-
-        .social-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .social-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.15);
-            border: 1px solid rgba(255,255,255,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .social-btn:hover {
-            transform: translateY(-5px) scale(1.1);
-            background: rgba(255,255,255,0.25);
-        }
-
-        .social-btn:active {
-            transform: scale(0.9);
-        }
-
-        .guest-btn {
-            background: linear-gradient(135deg, #FFA502, #FF7F50);
-            width: auto;
-            padding: 0 20px;
-            border-radius: 30px;
-            font-size: 1rem;
-            gap: 8px;
-        }
-
-        .guest-btn span {
-            font-size: 1.3rem;
-        }
-
-        .auth-link {
-            text-align: center;
-            color: white;
-            margin-top: 15px;
-            cursor: pointer;
-            opacity: 0.8;
-            transition: all 0.3s;
-        }
-
-        .auth-link:hover {
-            opacity: 1;
-            text-decoration: underline;
         }
 
         .error-message {
@@ -381,218 +228,24 @@
             display: flex;
         }
 
-        /* ===== أنماط تسجيل الدخول المصغرة ===== */
-        .auth-section {
-            margin: 15px 0;
-            animation: slideInLeft 0.8s ease 0.1s both;
-        }
-
-        .user-info {
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(10px);
-            border-radius: 40px;
-            padding: 8px 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: white;
-        }
-
-        .user-avatar {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            overflow: hidden;
-        }
-
-        .user-avatar img {
+        .guest-btn {
+            background: linear-gradient(135deg, #FFA502, #FF7F50);
             width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .user-name {
-            font-weight: 600;
-            max-width: 150px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .logout-btn {
-            background: rgba(255,255,255,0.2);
+            padding: 16px;
             border: none;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .logout-btn:active {
-            transform: scale(0.9);
-            background: rgba(255,255,255,0.3);
-        }
-
-        /* ===== أنماط لوحة المتصدرين ===== */
-        .leaderboard-section {
-            margin: 20px 0;
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 30px;
-            padding: 15px;
-            animation: slideInRight 0.8s ease 0.2s both;
-        }
-
-        .leaderboard-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            border-radius: 50px;
             color: white;
             font-size: 1.1rem;
-            margin-bottom: 15px;
-        }
-
-        .leaderboard-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        .leaderboard-item {
-            background: rgba(255,255,255,0.1);
-            border-radius: 20px;
-            padding: 10px 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: white;
-            transition: all 0.3s;
-        }
-
-        .leaderboard-item:hover {
-            transform: translateX(-5px);
-            background: rgba(255,255,255,0.2);
-        }
-
-        .leaderboard-rank {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.2);
+            font-weight: 700;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 800;
-        }
-
-        .leaderboard-avatar {
-            font-size: 1.5rem;
-        }
-
-        .leaderboard-name {
-            flex: 1;
-            font-weight: 600;
-        }
-
-        .leaderboard-stats {
-            display: flex;
             gap: 10px;
-            font-size: 0.9rem;
+            margin-top: 15px;
         }
 
-        .leaderboard-stat {
-            background: rgba(255,255,255,0.2);
-            padding: 3px 8px;
-            border-radius: 15px;
-        }
-
-        /* ===== أنماط اللعبة المعدلة ===== */
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(5deg); }
-        }
-
-        @keyframes pulse-glow {
-            0%, 100% { 
-                transform: scale(1);
-                box-shadow: 0 0 20px rgba(108, 92, 231, 0.5);
-            }
-            50% { 
-                transform: scale(1.05);
-                box-shadow: 0 0 40px rgba(108, 92, 231, 0.8);
-            }
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-8px) rotate(-2deg); }
-            75% { transform: translateX(8px) rotate(2deg); }
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg) scale(1); }
-            to { transform: rotate(360deg) scale(1); }
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-        }
-
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(100px) rotate(20deg);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0) rotate(0);
-            }
-        }
-
-        @keyframes slideInLeft {
-            from {
-                opacity: 0;
-                transform: translateX(-100px) rotate(-20deg);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0) rotate(0);
-            }
-        }
-
-        @keyframes flipIn {
-            0% {
-                opacity: 0;
-                transform: perspective(400px) rotateY(90deg);
-            }
-            100% {
-                opacity: 1;
-                transform: perspective(400px) rotateY(0deg);
-            }
-        }
-
-        @keyframes glowPulse {
-            0%, 100% { filter: drop-shadow(0 0 10px gold); }
-            50% { filter: drop-shadow(0 0 30px gold); }
-        }
-
-        @keyframes celebrate {
-            0%, 100% { transform: scale(1) rotate(0deg); }
-            25% { transform: scale(1.2) rotate(-5deg); }
-            75% { transform: scale(1.2) rotate(5deg); }
-        }
-
-        /* ===== الشاشات ===== */
+        /* ===== أنماط شاشة البداية ===== */
         .screen {
             position: absolute;
             top: 0;
@@ -600,10 +253,7 @@
             width: 100%;
             min-height: 100%;
             padding: 20px;
-            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
-            opacity: 1;
-            transform: translateX(0);
-            pointer-events: all;
+            transition: transform 0.5s ease, opacity 0.5s ease;
             background: inherit;
             display: flex;
             flex-direction: column;
@@ -615,61 +265,79 @@
             pointer-events: none;
         }
 
-        /* ===== شاشة البداية ===== */
         .start-screen {
-            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             justify-content: center;
             align-items: center;
         }
 
-        .floating-emojis {
-            position: relative;
-            width: 100%;
-            height: 150px;
-            margin: 10px 0;
-        }
-
-        .floating-emoji {
-            position: absolute;
-            font-size: 3rem;
-            animation: float 3s infinite ease-in-out;
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2));
-        }
-
-        .floating-emoji:nth-child(1) { left: 10%; animation-delay: 0s; }
-        .floating-emoji:nth-child(2) { left: 35%; animation-delay: 0.5s; }
-        .floating-emoji:nth-child(3) { left: 60%; animation-delay: 1s; }
-        .floating-emoji:nth-child(4) { left: 80%; animation-delay: 1.5s; }
-
         .game-title {
-            font-size: clamp(2.5rem, 15vw, 4rem);
+            font-size: 3rem;
             font-weight: 900;
-            margin: 10px 0;
-            text-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            letter-spacing: 2px;
-            animation: slideInRight 0.8s ease;
+            margin: 20px 0;
+            text-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
 
-        .player-card-modern {
-            background: rgba(255, 255, 255, 0.15);
+        .user-info-bar {
+            background: rgba(255,255,255,0.15);
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            border-radius: 40px;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: white;
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .player-card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
             border-radius: 30px;
             padding: 20px;
             margin: 20px 0;
             display: flex;
             align-items: center;
             gap: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
             width: 100%;
-            animation: slideInLeft 0.8s ease 0.2s both;
-            transition: all 0.3s;
-        }
-
-        .player-card-modern:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
         }
 
         .avatar-circle {
@@ -681,107 +349,104 @@
             align-items: center;
             justify-content: center;
             font-size: 2.5rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             border: 3px solid white;
-            transition: all 0.3s;
-            animation: pulse-glow 2s infinite;
         }
 
-        .avatar-circle:active {
-            transform: scale(1.2) rotate(10deg);
+        .player-name-modern {
+            font-size: 1.5rem;
+            font-weight: 700;
         }
 
-        .edit-name-modern {
+        .edit-name {
             background: rgba(255,255,255,0.2);
             border: none;
             color: white;
-            padding: 6px 15px;
-            border-radius: 25px;
-            font-size: 0.9rem;
+            padding: 5px 15px;
+            border-radius: 20px;
             cursor: pointer;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
             margin-top: 5px;
         }
 
-        .edit-name-modern:active {
-            transform: scale(1.1);
-            background: rgba(255,255,255,0.3);
+        /* ===== أنماط مستوى الصعوبة ===== */
+        .difficulty-selector {
+            width: 100%;
+            margin: 20px 0;
         }
+
+        .difficulty-label {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            color: white;
+        }
+
+        .difficulty-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .difficulty-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 30px;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .difficulty-btn.active {
+            background: white;
+            color: #667eea;
+            transform: scale(1.05);
+        }
+
+        .difficulty-btn.easy.active { background: #00b894; color: white; }
+        .difficulty-btn.medium.active { background: #fdcb6e; color: #2d3436; }
+        .difficulty-btn.hard.active { background: #ff7675; color: white; }
 
         .category-selector {
             width: 100%;
             margin: 20px 0;
-            animation: slideInRight 0.8s ease 0.3s both;
-        }
-
-        .category-label {
-            font-size: 1rem;
-            margin-bottom: 10px;
-            color: white;
-            text-align: center;
         }
 
         .category-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 10px;
+            margin-top: 10px;
         }
 
         .category-btn {
             background: rgba(255,255,255,0.15);
             border: 2px solid rgba(255,255,255,0.2);
             border-radius: 20px;
-            padding: 12px 5px;
+            padding: 15px;
             color: white;
-            font-size: 1rem;
-            font-weight: 600;
+            font-size: 1.1rem;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-            backdrop-filter: blur(5px);
-        }
-
-        .category-btn span {
-            font-size: 1.5rem;
             transition: all 0.3s;
-        }
-
-        .category-btn:hover {
-            transform: translateY(-5px) scale(1.05);
-            border-color: white;
-            background: rgba(255,255,255,0.25);
-        }
-
-        .category-btn:active {
-            transform: scale(0.9);
         }
 
         .category-btn.active {
             background: white;
-            color: var(--primary);
-            border-color: white;
-            transform: translateY(-3px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            animation: pulse-glow 1.5s infinite;
+            color: #667eea;
+            transform: scale(1.05);
         }
 
-        .category-btn.active span {
-            animation: bounce 1s infinite;
-        }
-
-        .menu-buttons-modern {
+        .menu-buttons {
             width: 100%;
             display: flex;
             flex-direction: column;
             gap: 15px;
             margin: 20px 0;
-            animation: slideInLeft 0.8s ease 0.4s both;
         }
 
         .btn-modern {
@@ -791,54 +456,22 @@
             font-size: 1.2rem;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
-            position: relative;
-            overflow: hidden;
         }
 
-        .btn-modern::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.5);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .btn-modern:active::before {
-            width: 300px;
-            height: 300px;
-        }
-
-        .btn-primary-modern {
+        .btn-primary {
             background: white;
-            color: var(--primary);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            color: #667eea;
         }
 
-        .btn-primary-modern:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-        }
-
-        .btn-secondary-modern {
+        .btn-secondary {
             background: rgba(255,255,255,0.15);
             color: white;
             border: 1px solid rgba(255,255,255,0.3);
-            backdrop-filter: blur(5px);
-        }
-
-        .btn-secondary-modern:hover {
-            background: rgba(255,255,255,0.25);
-            transform: translateY(-3px);
         }
 
         .stats-modern {
@@ -846,14 +479,13 @@
             justify-content: center;
             gap: 30px;
             margin: 20px 0;
-            animation: slideInRight 0.8s ease 0.5s both;
         }
 
-        .stat-item-modern {
+        .stat-item {
             text-align: center;
         }
 
-        .stat-value-modern {
+        .stat-value {
             display: block;
             font-size: 1.8rem;
             font-weight: 800;
@@ -864,67 +496,59 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 5px;
             border: 2px solid white;
+            color: white;
         }
 
-        .stat-label-modern {
+        .stat-label {
             font-size: 0.9rem;
-            opacity: 0.9;
+            color: white;
+            margin-top: 5px;
         }
 
-        /* ===== شاشة اللعب المعدلة ===== */
+        /* ===== شاشة اللعب ===== */
         .game-screen {
-            background: linear-gradient(135deg, #667eea, #764ba2);
             padding: 0;
-            display: flex;
-            flex-direction: column;
         }
 
-        .game-header-modern {
+        .game-header {
             background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            padding: 12px 15px;
+            padding: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid rgba(255,255,255,0.2);
-            animation: slideInLeft 0.5s ease;
         }
 
         .category-badge {
             background: rgba(255,255,255,0.2);
-            padding: 6px 15px;
+            padding: 8px 15px;
             border-radius: 30px;
             color: white;
-            font-weight: 600;
-            font-size: 0.9rem;
             display: flex;
             align-items: center;
             gap: 5px;
-            transition: all 0.3s;
         }
 
-        .category-badge:hover {
-            transform: scale(1.05);
-            background: rgba(255,255,255,0.3);
-        }
-
-        .round-badge-modern {
+        .difficulty-badge {
             background: rgba(255,255,255,0.2);
-            padding: 6px 15px;
+            padding: 8px 15px;
             border-radius: 30px;
             color: white;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            font-size: 0.9rem;
         }
 
-        .timer-modern {
+        .round-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            border-radius: 30px;
+            color: white;
+        }
+
+        .timer {
             background: white;
-            color: var(--primary);
+            color: #667eea;
             width: 60px;
             height: 60px;
             border-radius: 50%;
@@ -933,52 +557,58 @@
             justify-content: center;
             font-size: 1.8rem;
             font-weight: 800;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            transition: all 0.3s;
-            animation: pulse-glow 2s infinite;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
 
-        .timer-modern.warning {
-            background: var(--danger);
+        .timer.warning {
+            background: #ff7675;
             color: white;
-            animation: shake 0.5s infinite, pulse-glow 0.5s infinite;
+            animation: warningPulse 0.5s infinite;
         }
 
-        .players-progress-modern {
+        @keyframes warningPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* شريط تقدم اللاعبين */
+        .players-progress {
             display: flex;
             gap: 8px;
             padding: 12px;
             overflow-x: auto;
-            scrollbar-width: none;
             background: rgba(255,255,255,0.1);
             margin: 10px;
             border-radius: 40px;
-            backdrop-filter: blur(5px);
-            animation: slideInRight 0.5s ease;
         }
 
-        .player-progress-modern {
+        .player-progress {
             min-width: 80px;
             text-align: center;
             background: rgba(255,255,255,0.15);
             padding: 8px 5px;
             border-radius: 25px;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
         }
 
-        .player-progress-modern.active {
+        .player-progress.active {
             background: rgba(255,255,255,0.3);
-            transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            animation: pulse-glow 1.5s infinite;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
-        .player-progress-modern:active {
-            transform: scale(0.9);
+        .player-progress.passing {
+            animation: passingGlow 1s infinite;
+            border: 2px solid gold;
         }
 
-        .progress-avatar-modern {
+        @keyframes passingGlow {
+            0%, 100% { box-shadow: 0 0 10px gold; }
+            50% { box-shadow: 0 0 20px gold; }
+        }
+
+        .progress-avatar {
             width: 40px;
             height: 40px;
             border-radius: 50%;
@@ -989,14 +619,9 @@
             font-size: 1.5rem;
             margin: 0 auto 5px;
             border: 2px solid white;
-            transition: all 0.3s;
         }
 
-        .player-progress-modern:hover .progress-avatar-modern {
-            transform: rotate(360deg);
-        }
-
-        .progress-name-modern {
+        .progress-name {
             font-size: 0.8rem;
             color: white;
             margin-bottom: 5px;
@@ -1005,278 +630,290 @@
             text-overflow: ellipsis;
         }
 
-        .progress-bar-modern {
+        .progress-bar {
             width: 100%;
             height: 4px;
             background: rgba(255,255,255,0.2);
             border-radius: 2px;
-            margin: 5px 0;
             overflow: hidden;
         }
 
-        .progress-fill-modern {
+        .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--secondary), white);
-            border-radius: 2px;
-            transition: width 0.3s ease;
+            background: linear-gradient(90deg, #00d2ff, white);
+            transition: width 0.3s;
         }
 
-        .progress-count-modern {
+        .progress-count {
             font-size: 0.7rem;
             color: white;
             font-weight: 600;
+            margin-top: 3px;
         }
 
-        /* ===== بطاقات مصغرة مع تأثيرات ===== */
-        .cards-grid-modern {
+        /* بطاقات اللعب */
+        .cards-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            padding: 10px;
-            margin-bottom: 90px;
+            gap: 10px;
+            padding: 15px;
+            margin-bottom: 100px;
         }
 
-        .card-modern {
+        .card {
             background: white;
-            border-radius: 15px;
-            padding: 8px 2px;
+            border-radius: 20px;
+            padding: 15px 5px;
             text-align: center;
             box-shadow: 0 10px 20px rgba(0,0,0,0.2);
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 2px solid transparent;
-            aspect-ratio: 1/1.2;
+            transition: all 0.3s;
+            aspect-ratio: 1/1;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            position: relative;
-            overflow: hidden;
-            animation: flipIn 0.6s ease;
-            transform-style: preserve-3d;
+            border: 2px solid transparent;
         }
 
-        .card-modern::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.3), transparent);
-            opacity: 0;
-            transition: opacity 0.5s, transform 0.5s;
-            transform: scale(0);
-            pointer-events: none;
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
         }
 
-        .card-modern:hover::before {
-            opacity: 1;
-            transform: scale(1);
+        .card.selected {
+            border: 3px solid #00b894;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #00b894;
         }
 
-        .card-modern:hover {
-            transform: translateY(-5px) scale(1.03);
-            border-color: var(--primary);
-            box-shadow: 0 20px 30px rgba(108, 92, 231, 0.4);
+        .card.highlight {
+            border: 3px solid gold;
+            animation: cardPulse 0.8s infinite;
         }
 
-        .card-modern:active {
-            transform: scale(0.95);
+        @keyframes cardPulse {
+            0%, 100% { box-shadow: 0 0 10px gold; }
+            50% { box-shadow: 0 0 20px gold; }
         }
 
-        .card-modern.exchanging {
-            animation: spin 0.6s ease;
+        .card-emoji {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
         }
 
-        .card-modern.new-card {
-            animation: slideInRight 0.5s ease;
-        }
-
-        .card-modern.winning-card {
-            animation: glowPulse 1s infinite, celebrate 0.8s infinite;
-            border-color: gold;
-        }
-
-        .card-modern.shake-card {
-            animation: shake 0.5s ease;
-        }
-
-        .card-modern.bounce-card {
-            animation: bounce 0.8s infinite;
-        }
-
-        .card-emoji-modern {
-            font-size: clamp(1.8rem, 5vw, 2.5rem);
-            margin-bottom: 3px;
-            filter: drop-shadow(0 5px 8px rgba(0,0,0,0.2));
-            transition: all 0.3s;
-            animation: float 3s infinite ease-in-out;
-        }
-
-        .card-modern:hover .card-emoji-modern {
-            transform: scale(1.2) rotate(5deg);
-            filter: drop-shadow(0 10px 15px rgba(108, 92, 231, 0.5));
-        }
-
-        .card-name-modern {
-            font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+        .card-name {
+            font-size: 1rem;
             font-weight: 700;
-            color: var(--dark);
+            color: #2d3436;
+        }
+
+        /* عداد الوقت للتمرير */
+        .pass-timer-overlay {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 180px;
+            height: 180px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border: 4px solid #667eea;
+            animation: timerAppear 0.3s;
+        }
+
+        @keyframes timerAppear {
+            from { transform: translate(-50%, -50%) scale(0); }
+            to { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .pass-timer-value {
+            font-size: 5rem;
+            font-weight: 900;
+            color: #667eea;
+            line-height: 1;
+        }
+
+        .pass-timer-label {
+            font-size: 1rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .pass-timer-overlay.warning .pass-timer-value {
+            color: #ff7675;
+            animation: numberPulse 0.5s infinite;
+        }
+
+        @keyframes numberPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* زر التمرير */
+        .pass-button {
+            grid-column: span 4;
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
             transition: all 0.3s;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
-        .card-modern:hover .card-name-modern {
-            color: var(--primary);
-            transform: scale(1.1);
+        .pass-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
-        .card-modern[data-same="2"] {
-            border-color: var(--secondary);
-            box-shadow: 0 0 15px var(--secondary);
+        .pass-button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
 
-        .card-modern[data-same="3"] {
-            border-color: var(--warning);
-            box-shadow: 0 0 20px var(--warning);
-            animation: pulse-glow 1.5s infinite;
-        }
-
-        .card-modern[data-same="4"] {
-            border-color: gold;
-            box-shadow: 0 0 25px gold;
-            animation: glowPulse 0.8s infinite, celebrate 1s infinite;
-        }
-
-        /* ===== زر الفوز المتحرك - أكبر وأوضح ===== */
-        .win-button-modern {
+        /* أزرار الفوز */
+        .win-buttons-container {
             position: fixed;
             bottom: 15px;
             left: 15px;
             right: 15px;
             max-width: 500px;
             margin: 0 auto;
-            padding: 20px;
-            background: var(--gradient-danger);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .win-button {
+            padding: 15px;
+            background: linear-gradient(135deg, #ff7675, #ff6b6b);
             color: white;
             border: none;
-            border-radius: 60px;
-            font-size: 1.4rem;
-            font-weight: 800;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            box-shadow: 0 15px 40px rgba(255, 71, 87, 0.5);
-            z-index: 100;
-            overflow: hidden;
-            border: 3px solid rgba(255,255,255,0.3);
-            letter-spacing: 1px;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(255, 118, 117, 0.4);
+            border: 2px solid rgba(255,255,255,0.3);
         }
 
-        .win-button-modern::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.4), transparent);
-            opacity: 0;
-            transition: opacity 0.5s;
-            pointer-events: none;
-        }
-
-        .win-button-modern:hover::before {
-            opacity: 1;
-        }
-
-        .win-button-modern:disabled {
+        .win-button:disabled {
             opacity: 0.4;
             transform: scale(0.95);
-            pointer-events: none;
-            filter: grayscale(1);
+            cursor: not-allowed;
         }
 
-        .win-button-modern:not(:disabled):hover {
-            transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 25px 50px rgba(255, 71, 87, 0.7);
+        .win-button.pulse {
+            animation: winPulse 0.8s infinite;
         }
 
-        .win-button-modern:not(:disabled):active {
-            transform: translateY(0) scale(0.98);
+        @keyframes winPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
 
-        .win-button-modern.pulse {
-            animation: pulse-glow 1s infinite, bounce 1s infinite;
-        }
-
-        /* ===== نافذة الفوز ===== */
-        .winner-modal-modern {
+        /* نافذة النتائج */
+        .results-modal {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0);
             background: white;
-            padding: 40px 20px;
+            padding: 30px;
             border-radius: 40px;
-            text-align: center;
-            z-index: 1000;
+            z-index: 2000;
             width: 90%;
-            max-width: 380px;
-            box-shadow: 0 30px 70px rgba(0,0,0,0.3);
-            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 3px solid gold;
+            max-width: 350px;
+            text-align: center;
+            box-shadow: 0 30px 50px rgba(0,0,0,0.3);
+            transition: transform 0.4s;
         }
 
-        .winner-modal-modern.show {
+        .results-modal.show {
             transform: translate(-50%, -50%) scale(1);
         }
 
-        .winner-avatar-modern {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: var(--gradient);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 4rem;
-            margin: 0 auto 20px;
-            border: 4px solid gold;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            animation: winnerSpin 1s ease, glowPulse 1.5s infinite;
-        }
-
-        @keyframes winnerSpin {
-            0% { transform: rotate(0deg) scale(0); }
-            50% { transform: rotate(180deg) scale(1.2); }
-            100% { transform: rotate(360deg) scale(1); }
-        }
-
-        .winner-title-modern {
-            font-size: 2.2rem;
-            color: var(--dark);
-            margin-bottom: 10px;
-            font-weight: 900;
-            animation: bounce 1s infinite;
-        }
-
-        .winner-time-modern {
-            font-size: 1.2rem;
-            color: #666;
+        .results-title {
+            font-size: 2rem;
+            color: #2d3436;
             margin-bottom: 20px;
         }
 
-        .modal-buttons-modern {
+        .results-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .result-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px;
+            background: #f5f6fa;
+            border-radius: 30px;
+            font-size: 1.1rem;
+        }
+
+        .result-rank {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+        }
+
+        .result-rank.loser {
+            background: #ff7675;
+        }
+
+        .result-avatar {
+            font-size: 2rem;
+        }
+
+        .result-name {
+            flex: 1;
+            font-weight: 600;
+        }
+
+        .result-time {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .modal-buttons {
             display: flex;
             gap: 10px;
             justify-content: center;
+            margin-top: 20px;
         }
 
-        .modal-btn-modern {
+        .modal-btn {
             padding: 12px 25px;
             border: none;
             border-radius: 30px;
@@ -1286,26 +923,17 @@
             transition: all 0.3s;
         }
 
-        .modal-btn-primary-modern {
-            background: var(--gradient-success);
+        .modal-btn-primary {
+            background: #667eea;
             color: white;
         }
 
-        .modal-btn-secondary-modern {
-            background: #f0f0f0;
-            color: #666;
+        .modal-btn-secondary {
+            background: #f1f2f6;
+            color: #2d3436;
         }
 
-        .modal-btn-modern:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-
-        .modal-btn-modern:active {
-            transform: scale(0.95);
-        }
-
-        .overlay-modern {
+        .overlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -1313,119 +941,46 @@
             height: 100%;
             background: rgba(0,0,0,0.5);
             backdrop-filter: blur(5px);
-            z-index: 999;
+            z-index: 1999;
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s;
         }
 
-        .overlay-modern.show {
+        .overlay.show {
             opacity: 1;
             pointer-events: all;
         }
 
-        .confetti {
+        .toast {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1001;
-        }
-
-        .confetti-piece {
-            position: absolute;
-            width: 12px;
-            height: 25px;
-            background: var(--primary);
-            top: -100px;
-            animation: confettiFall 3s linear infinite;
-            border-radius: 5px;
-        }
-
-        @keyframes confettiFall {
-            0% {
-                transform: translateY(0) rotate(0deg);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(100vh) rotate(720deg);
-                opacity: 0;
-            }
-        }
-
-        .toast-modern {
-            position: fixed;
-            bottom: 80px;
+            bottom: 100px;
             left: 50%;
             transform: translateX(-50%) translateY(100px);
             padding: 15px 30px;
             border-radius: 50px;
             color: white;
             font-weight: 600;
-            z-index: 2000;
-            transition: transform 0.4s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            max-width: 90%;
-            backdrop-filter: blur(5px);
+            z-index: 3000;
+            transition: transform 0.3s;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
 
-        .toast-modern.show {
+        .toast.show {
             transform: translateX(-50%) translateY(0);
-        }
-
-        .toast-modern.success { background: linear-gradient(135deg, #00B894, #00CEC9); }
-        .toast-modern.error { background: linear-gradient(135deg, #FF7675, #FF6B6B); }
-        .toast-modern.info { background: linear-gradient(135deg, #6C5CE7, #00D2FF); }
-        .toast-modern.warning { background: linear-gradient(135deg, #FDCB6E, #FFA502); }
-
-        .toast-modern span {
-            animation: bounce 1s infinite;
-        }
-
-        .guest-indicator {
-            background: linear-gradient(135deg, #FFA502, #FF7F50);
-            padding: 3px 8px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            margin-left: 5px;
-        }
-
-        @media (max-width: 380px) {
-            .card-emoji-modern { font-size: 1.6rem; }
-            .card-name-modern { font-size: 0.65rem; }
-            .avatar-circle { width: 60px; height: 60px; font-size: 2rem; }
-            .timer-modern { width: 50px; height: 50px; font-size: 1.5rem; }
-        }
-
-        @media (min-width: 768px) {
-            .game-container {
-                height: 95vh;
-                margin: 2.5vh auto;
-                border-radius: 40px;
-            }
         }
     </style>
 </head>
 <body>
-    <!-- عناصر الصوت المخفية -->
-    <audio id="sound-click" preload="auto" style="display: none;"></audio>
-    <audio id="sound-win" preload="auto" style="display: none;"></audio>
-    <audio id="sound-exchange" preload="auto" style="display: none;"></audio>
-    <audio id="sound-timer" preload="auto" style="display: none;"></audio>
-
     <div class="game-container">
-        <!-- شاشة تسجيل الدخول الجديدة -->
+        <!-- شاشة تسجيل الدخول -->
         <div id="authScreen" class="auth-screen">
             <div class="auth-card">
                 <div class="auth-header">
                     <div class="auth-logo">🎮</div>
                     <h2 class="auth-title">الكلمات الأربعة</h2>
-                    <p class="auth-subtitle">سجل دخولك أو العب كزائر</p>
+                    <p class="auth-subtitle">سجل دخولك لتنضم الينا</p>
                 </div>
 
                 <div class="auth-tabs">
@@ -1447,194 +1002,155 @@
                 <div id="loginForm" class="auth-form">
                     <div class="input-group">
                         <span class="input-icon">📧</span>
-                        <input type="email" id="loginEmail" class="auth-input" placeholder="البريد الإلكتروني" dir="ltr">
+                        <input type="email" id="loginEmail" class="auth-input" placeholder="البريد الإلكتروني">
                     </div>
                     <div class="input-group">
                         <span class="input-icon">🔒</span>
-                        <input type="password" id="loginPassword" class="auth-input" placeholder="كلمة المرور" dir="ltr">
-                        <span class="password-toggle" onclick="togglePassword('loginPassword')">👁️</span>
+                        <input type="password" id="loginPassword" class="auth-input" placeholder="كلمة المرور">
                     </div>
                     <button class="auth-button" onclick="loginWithEmail()">
                         <span>🔑</span> تسجيل الدخول
                     </button>
-                    <div class="auth-link" onclick="resetPassword()">نسيت كلمة المرور؟</div>
                 </div>
 
                 <!-- نموذج إنشاء حساب -->
                 <div id="registerForm" class="auth-form hidden">
                     <div class="input-group">
                         <span class="input-icon">👤</span>
-                        <input type="text" id="registerName" class="auth-input" placeholder="الاسم" dir="rtl">
+                        <input type="text" id="registerName" class="auth-input" placeholder="الاسم">
                     </div>
                     <div class="input-group">
                         <span class="input-icon">📧</span>
-                        <input type="email" id="registerEmail" class="auth-input" placeholder="البريد الإلكتروني" dir="ltr">
+                        <input type="email" id="registerEmail" class="auth-input" placeholder="البريد الإلكتروني">
                     </div>
                     <div class="input-group">
                         <span class="input-icon">🔒</span>
-                        <input type="password" id="registerPassword" class="auth-input" placeholder="كلمة المرور" dir="ltr">
-                        <span class="password-toggle" onclick="togglePassword('registerPassword')">👁️</span>
-                    </div>
-                    <div class="input-group">
-                        <span class="input-icon">🔒</span>
-                        <input type="password" id="confirmPassword" class="auth-input" placeholder="تأكيد كلمة المرور" dir="ltr">
-                        <span class="password-toggle" onclick="togglePassword('confirmPassword')">👁️</span>
+                        <input type="password" id="registerPassword" class="auth-input" placeholder="كلمة المرور">
                     </div>
                     <button class="auth-button" onclick="registerWithEmail()">
                         <span>📝</span> إنشاء حساب
                     </button>
                 </div>
 
-                <div class="auth-divider">أو</div>
-
-                <div class="social-buttons">
-                    <button class="social-btn" onclick="signInWithGoogle()" title="تسجيل بجوجل">
-                        <span>🔴</span>
-                    </button>
-                    <button class="social-btn guest-btn" onclick="quickGuestAccess()" title="دخول سريع بدون حساب">
-                        <span>⚡</span> دخول كزائر
-                    </button>
-                </div>
-                
-                <div class="auth-link" onclick="useLocalGuestMode()">
-                    <span>🎮</span> دخول سريع جداً (بدون إنترنت)
-                </div>
+                <button class="guest-btn" onclick="playAsGuest()">
+                    <span>⚡</span> اللعب كزائر
+                </button>
             </div>
         </div>
 
         <!-- شاشة البداية -->
         <div id="startScreen" class="screen start-screen hidden">
-            <div class="floating-emojis">
-                <div class="floating-emoji">🍎</div>
-                <div class="floating-emoji">🥕</div>
-                <div class="floating-emoji">🦁</div>
-                <div class="floating-emoji">🐦</div>
-            </div>
-            
-            <h1 class="game-title">لعــبة الكلمات</h1>
-            
-            <!-- معلومات المستخدم -->
-            <div class="auth-section">
-                <div id="userInfo" class="user-info" style="display: none;">
+            <!-- شريط معلومات المستخدم -->
+            <div class="user-info-bar" id="userInfoBar" style="display: none;">
+                <div class="user-info">
                     <div class="user-avatar" id="userAvatar">👤</div>
-                    <div class="user-name" id="userDisplayName">زائر</div>
-                    <button class="logout-btn" onclick="logout()">تسجيل خروج</button>
+                    <span class="user-name" id="userDisplayName">زائر</span>
                 </div>
+                <button class="logout-btn" onclick="logout()">تسجيل خروج</button>
             </div>
+
+            <h1 class="game-title">⚡ الكلمات الأربعة</h1>
             
-            <div class="player-card-modern">
+            <div class="player-card">
                 <div class="avatar-circle" id="playerAvatar">👤</div>
-                <div class="player-info-modern">
-                    <div class="player-name-label">مرحباً</div>
+                <div>
                     <div class="player-name-modern" id="playerName">لاعب</div>
-                    <button class="edit-name-modern" onclick="editName()">
-                        <span>✏️</span> تعديل
+                    <button class="edit-name" onclick="editName()">✏️ تعديل</button>
+                </div>
+            </div>
+
+            <!-- مستوى الصعوبة -->
+            <div class="difficulty-selector">
+                <div class="difficulty-label">🎯 مستوى الصعوبة</div>
+                <div class="difficulty-buttons">
+                    <button class="difficulty-btn easy" onclick="setDifficulty('easy', this)">
+                        <span>🌱</span> سهل
+                    </button>
+                    <button class="difficulty-btn medium active" onclick="setDifficulty('medium', this)">
+                        <span>⚡</span> متوسط
+                    </button>
+                    <button class="difficulty-btn hard" onclick="setDifficulty('hard', this)">
+                        <span>🔥</span> صعب
                     </button>
                 </div>
             </div>
 
-            <!-- لوحة المتصدرين -->
-            <div class="leaderboard-section">
-                <div class="leaderboard-title">
-                    <span>🏆</span> أفضل اللاعبين
-                </div>
-                <div id="leaderboardList" class="leaderboard-list">
-                    <div class="leaderboard-item">
-                        <div class="leaderboard-rank">1</div>
-                        <div class="leaderboard-avatar">👤</div>
-                        <div class="leaderboard-name">زائر</div>
-                        <div class="leaderboard-stats">
-                            <span class="leaderboard-stat">🏆 0</span>
-                            <span class="leaderboard-stat">⚡ 0</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- قائمة اختيار الفئة -->
             <div class="category-selector">
-                <div class="category-label">اختر الفئة</div>
-                <div class="category-grid" id="categoryGrid">
-                    <button class="category-btn active" data-category="fruits" onclick="selectCategory('fruits')">
-                        <span>🍎</span> فواكه
-                    </button>
-                    <button class="category-btn" data-category="vegetables" onclick="selectCategory('vegetables')">
-                        <span>🥕</span> خضروات
-                    </button>
-                    <button class="category-btn" data-category="animals" onclick="selectCategory('animals')">
-                        <span>🦁</span> حيوانات
-                    </button>
-                    <button class="category-btn" data-category="birds" onclick="selectCategory('birds')">
-                        <span>🐦</span> طيور
-                    </button>
-                    <button class="category-btn" data-category="capitals" onclick="selectCategory('capitals')">
-                        <span>🏛️</span> عواصم
-                    </button>
+                <div style="text-align: center; margin-bottom: 10px;">اختر الفئة</div>
+                <div class="category-grid">
+                    <button class="category-btn active" onclick="selectCategory('fruits', this)">🍎 فواكه</button>
+                    <button class="category-btn" onclick="selectCategory('vegetables', this)">🥕 خضروات</button>
+                    <button class="category-btn" onclick="selectCategory('animals', this)">🦁 حيوانات</button>
+                    <button class="category-btn" onclick="selectCategory('birds', this)">🐦 طيور</button>
                 </div>
             </div>
 
-            <div class="menu-buttons-modern">
-                <button class="btn-modern btn-primary-modern" onclick="startGame()">
+            <div class="menu-buttons">
+                <button class="btn-modern btn-primary" onclick="startGame()">
                     <span>🎮</span> بدء اللعبة
                 </button>
-                <button class="btn-modern btn-secondary-modern" onclick="showInstructions()">
+                <button class="btn-modern btn-secondary" onclick="showInstructions()">
                     <span>📚</span> شرح اللعبة
-                </button>
-                <button class="btn-modern btn-secondary-modern" onclick="shareResult()">
-                    <span>📤</span> مشاركة النتيجة
                 </button>
             </div>
 
             <div class="stats-modern">
-                <div class="stat-item-modern">
-                    <span class="stat-value-modern" id="gamesPlayed">0</span>
-                    <span class="stat-label-modern">الألعاب</span>
+                <div class="stat-item">
+                    <span class="stat-value" id="gamesPlayed">0</span>
+                    <span class="stat-label">الألعاب</span>
                 </div>
-                <div class="stat-item-modern">
-                    <span class="stat-value-modern" id="winsCount">0</span>
-                    <span class="stat-label-modern">الفوز</span>
+                <div class="stat-item">
+                    <span class="stat-value" id="winsCount">0</span>
+                    <span class="stat-label">الفوز</span>
                 </div>
-                <div class="stat-item-modern">
-                    <span class="stat-value-modern" id="fastestWin">--</span>
-                    <span class="stat-label-modern">الأسرع</span>
+                <div class="stat-item">
+                    <span class="stat-value" id="fastestWin">--</span>
+                    <span class="stat-label">الأسرع</span>
                 </div>
             </div>
         </div>
 
         <!-- شاشة اللعب -->
         <div id="gameScreen" class="screen game-screen hidden">
-            <div class="game-header-modern">
+            <div class="game-header">
                 <div class="category-badge" id="categoryDisplay">
                     <span id="categoryIcon">🍎</span>
                     <span id="categoryName">فواكه</span>
                 </div>
-                <div class="round-badge-modern">
-                    <span>🏆</span>
-                    <span id="roundDisplay">الجولة 1</span>
-                </div>
-                <div class="timer-modern" id="timer">60</div>
+                <div class="difficulty-badge" id="difficultyDisplay">⚡ متوسط</div>
+                <div class="round-badge" id="roundDisplay">الجولة 1</div>
+                <div class="timer" id="timer">60</div>
             </div>
 
-            <div id="playersProgress" class="players-progress-modern"></div>
-            <div id="cardsContainer" class="cards-grid-modern"></div>
+            <div id="playersProgress" class="players-progress"></div>
+            <div id="cardsContainer" class="cards-grid"></div>
 
-            <button id="winButton" class="win-button-modern" disabled onclick="claimWin()">
-                <span>🏆</span> لقد جمعت 4 كروت متشابهة!
-            </button>
+            <!-- حاوية أزرار الفوز -->
+            <div id="winButtonsContainer" class="win-buttons-container"></div>
         </div>
     </div>
 
-    <!-- نافذة الفوز -->
-    <div id="winnerModal" class="winner-modal-modern">
-        <div class="winner-avatar-modern" id="winnerAvatar">🏆</div>
-        <h2 class="winner-title-modern" id="winnerTitle">فائز!</h2>
-        <div class="winner-time-modern" id="winnerTime"></div>
-        <div class="modal-buttons-modern">
-            <button class="modal-btn-modern modal-btn-primary-modern" onclick="nextRound()">الجولة التالية</button>
-            <button class="modal-btn-modern modal-btn-secondary-modern" onclick="endGame()">قائمة رئيسية</button>
+    <!-- نافذة النتائج -->
+    <div id="resultsModal" class="results-modal">
+        <h2 class="results-title" id="resultsTitle">🏆 النتيجة</h2>
+        <div id="resultsList" class="results-list"></div>
+        <div class="modal-buttons">
+            <button class="modal-btn modal-btn-primary" onclick="nextRound()">الجولة التالية</button>
+            <button class="modal-btn modal-btn-secondary" onclick="endGame()">قائمة رئيسية</button>
         </div>
     </div>
-    <div id="overlay" class="overlay-modern"></div>
+
+    <!-- عداد وقت التمرير -->
+    <div id="passTimer" class="pass-timer-overlay" style="display: none;">
+        <div class="pass-timer-value" id="passTimerValue">5</div>
+        <div class="pass-timer-label">ثانية للتمرير</div>
+    </div>
+
+    <!-- خلفية معتمة -->
+    <div id="overlay" class="overlay"></div>
+
+    <!-- رسالة منبثقة -->
+    <div id="toast" class="toast" style="display: none;"></div>
 
     <script>
         // ==================== تهيئة Firebase ====================
@@ -1645,8 +1161,7 @@
             projectId: "kin-tien",
             storageBucket: "kin-tien.firebasestorage.app",
             messagingSenderId: "285420896766",
-            appId: "1:285420896766:web:234ee65007d9333c1200af",
-            measurementId: "G-X8W7Y7Z72P"
+            appId: "1:285420896766:web:234ee65007d9333c1200af"
         };
 
         // تهيئة Firebase
@@ -1658,83 +1173,163 @@
         const gameState = {
             userId: null,
             playerName: localStorage.getItem('playerName') || 'لاعب',
-            localMode: false,
+            isGuest: true,
             currentCategory: 'fruits',
+            difficulty: 'medium', // easy, medium, hard
             currentRound: 1,
+            
+            // اللاعبون: [0] هو اللاعب البشري، والباقي روبوتات بأيقونات روبوت
             players: [
-                { id: 'player1', name: '', avatar: '👤', isCurrent: true, wins: 0 },
-                { id: 'player2', name: 'محمد', avatar: '👨', isCurrent: false, wins: 0 },
-                { id: 'player3', name: 'عبدالقادر', avatar: '👦', isCurrent: false, wins: 0 },
-                { id: 'player4', name: 'أسماء', avatar: '👧', isCurrent: false, wins: 0 }
+                { id: 'player', name: '', avatar: '👤', type: 'human', wins: 0 },
+                { id: 'robot1', name: 'روبوت 1', avatar: '🤖', type: 'robot', wins: 0 },
+                { id: 'robot2', name: 'روبوت 2', avatar: '🦾', type: 'robot', wins: 0 },
+                { id: 'robot3', name: 'روبوت 3', avatar: '🧠', type: 'robot', wins: 0 }
             ],
+            
             currentPlayerIndex: 0,
             cards: {},
             gameActive: false,
             timerInterval: null,
             timeLeft: 60,
+            
+            // نظام التمرير
+            passState: {
+                isActive: false,
+                playerId: null,
+                timeLeft: 5,
+                timer: null,
+                selectedCardIndex: -1
+            },
+            
+            // نظام الفوز
+            winState: {
+                isActive: false,
+                firstWinner: null,
+                winners: [],
+                pressTimes: {},
+                startTime: null
+            },
+            
+            // إحصائيات
             stats: {
                 games: 0,
                 wins: 0,
                 fastestWin: null
-            },
-            lastAction: 0
-        };
-
-        // ==================== قوائم الفئات ====================
-        const categories = {
-            fruits: {
-                name: 'فواكه',
-                icon: '🍎',
-                items: [
-                    { emoji: '🍎', name: 'تفاح' },
-                    { emoji: '🍌', name: 'موز' },
-                    { emoji: '🍊', name: 'برتقال' },
-                    { emoji: '🍇', name: 'عنب' }
-                ]
-            },
-            vegetables: {
-                name: 'خضروات',
-                icon: '🥕',
-                items: [
-                    { emoji: '🥕', name: 'جزر' },
-                    { emoji: '🥦', name: 'بروكلي' },
-                    { emoji: '🍅', name: 'طماطم' },
-                    { emoji: '🥒', name: 'خيار' }
-                ]
-            },
-            animals: {
-                name: 'حيوانات',
-                icon: '🦁',
-                items: [
-                    { emoji: '🦁', name: 'أسد' },
-                    { emoji: '🐯', name: 'نمر' },
-                    { emoji: '🐘', name: 'فيل' },
-                    { emoji: '🦒', name: 'زرافة' }
-                ]
-            },
-            birds: {
-                name: 'طيور',
-                icon: '🐦',
-                items: [
-                    { emoji: '🐦', name: 'عصفور' },
-                    { emoji: '🦅', name: 'نسر' },
-                    { emoji: '🦉', name: 'بومة' },
-                    { emoji: '🐧', name: 'بطريق' }
-                ]
-            },
-            capitals: {
-                name: 'عواصم',
-                icon: '🏛️',
-                items: [
-                    { emoji: '🇸🇦', name: 'الرياض' },
-                    { emoji: '🇪🇬', name: 'القاهرة' },
-                    { emoji: '🇦🇪', name: 'أبوظبي' },
-                    { emoji: '🇺🇸', name: 'واشنطن' }
-                ]
             }
         };
 
-        // ==================== دوال شاشة تسجيل الدخول ====================
+        // قوائم الفئات
+       const categories = {
+  fruits: {
+    name: 'فواكه',
+    icon: '🍎',
+    items: [
+      { emoji: '🍎', name: 'تفاح' },
+      { emoji: '🍌', name: 'موز' },
+      { emoji: '🍊', name: 'برتقال' },
+      { emoji: '🍇', name: 'عنب' },
+      { emoji: '🍓', name: 'فراولة' },
+      { emoji: '🍉', name: 'بطيخ' },
+      { emoji: '🍍', name: 'أناناس' },
+      { emoji: '🥭', name: 'مانجو' },
+      { emoji: '🍑', name: 'خوخ' },
+      { emoji: '🍒', name: 'كرز' },
+      { emoji: '🥝', name: 'كيوي' },
+      { emoji: '🍐', name: 'كمثرى' },
+      { emoji: '🍋', name: 'ليمون' },
+      { emoji: '🍈', name: 'شمام' },
+      { emoji: '🫐', name: 'توت أزرق' },
+      { emoji: '🥥', name: 'جوز الهند' },
+      { emoji: '🍏', name: 'تفاح أخضر' },
+      { emoji: '🍅', name: 'طماطم' },
+      { emoji: '🍌', name: 'موز بلدي' },
+      { emoji: '🍊', name: 'يوسفي' }
+    ]
+  },
+
+  vegetables: {
+    name: 'خضروات',
+    icon: '🥕',
+    items: [
+      { emoji: '🥕', name: 'جزر' },
+      { emoji: '🥦', name: 'بروكلي' },
+      { emoji: '🍅', name: 'طماطم' },
+      { emoji: '🥒', name: 'خيار' },
+      { emoji: '🌽', name: 'ذرة' },
+      { emoji: '🥬', name: 'خس' },
+      { emoji: '🫑', name: 'فلفل' },
+      { emoji: '🧅', name: 'بصل' },
+      { emoji: '🧄', name: 'ثوم' },
+      { emoji: '🥔', name: 'بطاطس' },
+      { emoji: '🍆', name: 'باذنجان' },
+      { emoji: '🥗', name: 'سلطة' },
+      { emoji: '🍠', name: 'بطاطا' },
+      { emoji: '🥜', name: 'فول سوداني' },
+      { emoji: '🫘', name: 'فاصوليا' },
+      { emoji: '🥦', name: 'قرنبيط' },
+      { emoji: '🥒', name: 'كوسة' },
+      { emoji: '🫑', name: 'فلفل رومي' },
+      { emoji: '🥬', name: 'سبانخ' },
+      { emoji: '🍄', name: 'فطر' }
+    ]
+  },
+
+  animals: {
+    name: 'حيوانات',
+    icon: '🦁',
+    items: [
+      { emoji: '🦁', name: 'أسد' },
+      { emoji: '🐯', name: 'نمر' },
+      { emoji: '🐘', name: 'فيل' },
+      { emoji: '🦒', name: 'زرافة' },
+      { emoji: '🐶', name: 'كلب' },
+      { emoji: '🐱', name: 'قطة' },
+      { emoji: '🐴', name: 'حصان' },
+      { emoji: '🐮', name: 'بقرة' },
+      { emoji: '🐷', name: 'خنزير' },
+      { emoji: '🐵', name: 'قرد' },
+      { emoji: '🐼', name: 'باندا' },
+      { emoji: '🐻', name: 'دب' },
+      { emoji: '🐨', name: 'كوالا' },
+      { emoji: '🦊', name: 'ثعلب' },
+      { emoji: '🐰', name: 'أرنب' },
+      { emoji: '🐸', name: 'ضفدع' },
+      { emoji: '🐔', name: 'دجاجة' },
+      { emoji: '🐺', name: 'ذئب' },
+      { emoji: '🦓', name: 'حمار وحشي' },
+      { emoji: '🦛', name: 'فرس النهر' }
+    ]
+  },
+
+  birds: {
+    name: 'طيور',
+    icon: '🐦',
+    items: [
+      { emoji: '🐦', name: 'عصفور' },
+      { emoji: '🦅', name: 'نسر' },
+      { emoji: '🦉', name: 'بومة' },
+      { emoji: '🐧', name: 'بطريق' },
+      { emoji: '🦜', name: 'ببغاء' },
+      { emoji: '🦢', name: 'بجعة' },
+      { emoji: '🦩', name: 'فلامنجو' },
+      { emoji: '🐓', name: 'ديك' },
+      { emoji: '🦤', name: 'طائر الدودو' },
+      { emoji: '🐦', name: 'حمامة' },
+      { emoji: '🦆', name: 'بطة' },
+      { emoji: '🦚', name: 'طاووس' },
+      { emoji: '🪿', name: 'إوز' },
+      { emoji: '🐤', name: 'كتكوت' },
+      { emoji: '🐦', name: 'غراب' },
+      { emoji: '🦅', name: 'صقر' },
+      { emoji: '🦉', name: 'بوم' },
+      { emoji: '🐦', name: 'سنونو' },
+      { emoji: '🐦', name: 'عندليب' },
+      { emoji: '🐦', name: 'كناري' }
+    ]
+  }
+};
+
+        // ==================== دوال Firebase والمصادقة ====================
         function switchAuthTab(tab) {
             const loginTab = document.getElementById('loginTab');
             const registerTab = document.getElementById('registerTab');
@@ -1752,45 +1347,26 @@
                 registerForm.classList.remove('hidden');
                 loginForm.classList.add('hidden');
             }
-
-            hideMessages();
-        }
-
-        function togglePassword(inputId) {
-            const input = document.getElementById(inputId);
-            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
-            input.setAttribute('type', type);
         }
 
         function showError(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            const errorText = document.getElementById('errorText');
-            errorText.textContent = message;
-            errorDiv.classList.add('show');
+            document.getElementById('errorText').textContent = message;
+            document.getElementById('errorMessage').classList.add('show');
             document.getElementById('successMessage').classList.remove('show');
         }
 
         function showSuccess(message) {
-            const successDiv = document.getElementById('successMessage');
-            const successText = document.getElementById('successText');
-            successText.textContent = message;
-            successDiv.classList.add('show');
+            document.getElementById('successText').textContent = message;
+            document.getElementById('successMessage').classList.add('show');
             document.getElementById('errorMessage').classList.remove('show');
         }
 
-        function hideMessages() {
-            document.getElementById('errorMessage').classList.remove('show');
-            document.getElementById('successMessage').classList.remove('show');
-        }
-
-        // ==================== دوال المصادقة ====================
         function registerWithEmail() {
             const name = document.getElementById('registerName').value.trim();
             const email = document.getElementById('registerEmail').value.trim();
             const password = document.getElementById('registerPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
 
-            if (!name || !email || !password || !confirmPassword) {
+            if (!name || !email || !password) {
                 showError('جميع الحقول مطلوبة');
                 return;
             }
@@ -1800,38 +1376,31 @@
                 return;
             }
 
-            if (password !== confirmPassword) {
-                showError('كلمة المرور غير متطابقة');
-                return;
-            }
-
             auth.createUserWithEmailAndPassword(email, password)
                 .then(userCredential => {
                     return userCredential.user.updateProfile({
                         displayName: name
                     }).then(() => {
-                        return userCredential;
+                        // حفظ بيانات المستخدم في Realtime Database
+                        return database.ref('users/' + userCredential.user.uid).set({
+                            name: name,
+                            email: email,
+                            stats: gameState.stats,
+                            createdAt: Date.now()
+                        });
                     });
                 })
-                .then(userCredential => {
-                    const user = userCredential.user;
+                .then(() => {
                     showSuccess('تم إنشاء الحساب بنجاح! جاري تسجيل الدخول...');
-                    
                     setTimeout(() => {
-                        loadUserData(user.uid, user.displayName || name, user.photoURL);
+                        document.getElementById('authScreen').classList.add('hidden');
+                        document.getElementById('startScreen').classList.remove('hidden');
                     }, 1500);
                 })
                 .catch(error => {
                     let message = 'حدث خطأ';
-                    switch(error.code) {
-                        case 'auth/email-already-in-use':
-                            message = 'البريد الإلكتروني مستخدم بالفعل';
-                            break;
-                        case 'auth/invalid-email':
-                            message = 'البريد الإلكتروني غير صالح';
-                            break;
-                        default:
-                            message = error.message;
+                    if (error.code === 'auth/email-already-in-use') {
+                        message = 'البريد الإلكتروني مستخدم بالفعل';
                     }
                     showError(message);
                 });
@@ -1848,562 +1417,218 @@
 
             auth.signInWithEmailAndPassword(email, password)
                 .then(userCredential => {
-                    const user = userCredential.user;
                     showSuccess('تم تسجيل الدخول بنجاح! جاري التحميل...');
                     
+                    // تحميل إحصائيات المستخدم
+                    return database.ref('users/' + userCredential.user.uid + '/stats').once('value');
+                })
+                .then(snapshot => {
+                    const stats = snapshot.val();
+                    if (stats) {
+                        gameState.stats = stats;
+                    }
+                    
                     setTimeout(() => {
-                        loadUserData(user.uid, user.displayName || 'مستخدم', user.photoURL);
+                        document.getElementById('authScreen').classList.add('hidden');
+                        document.getElementById('startScreen').classList.remove('hidden');
+                        updateUserInfo();
+                        updateStatsDisplay();
                     }, 1500);
                 })
                 .catch(error => {
-                    let message = 'حدث خطأ';
-                    switch(error.code) {
-                        case 'auth/user-not-found':
-                            message = 'لا يوجد حساب بهذا البريد';
-                            break;
-                        case 'auth/wrong-password':
-                            message = 'كلمة المرور غير صحيحة';
-                            break;
-                        case 'auth/invalid-email':
-                            message = 'البريد الإلكتروني غير صالح';
-                            break;
-                        default:
-                            message = error.message;
+                    let message = 'خطأ في تسجيل الدخول';
+                    if (error.code === 'auth/user-not-found') {
+                        message = 'لا يوجد حساب بهذا البريد';
+                    } else if (error.code === 'auth/wrong-password') {
+                        message = 'كلمة المرور غير صحيحة';
                     }
                     showError(message);
                 });
         }
 
-        function resetPassword() {
-            const email = document.getElementById('loginEmail').value.trim();
+        function playAsGuest() {
+            gameState.isGuest = true;
+            gameState.userId = 'guest_' + Date.now();
             
-            if (!email) {
-                showError('الرجاء إدخال البريد الإلكتروني');
-                return;
-            }
-
-            auth.sendPasswordResetEmail(email)
-                .then(() => {
-                    showSuccess('تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني');
-                })
-                .catch(error => {
-                    let message = 'حدث خطأ';
-                    switch(error.code) {
-                        case 'auth/user-not-found':
-                            message = 'لا يوجد حساب بهذا البريد';
-                            break;
-                        default:
-                            message = error.message;
-                    }
-                    showError(message);
-                });
+            showSuccess('مرحباً بك كزائر!');
+            
+            setTimeout(() => {
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('startScreen').classList.remove('hidden');
+                updateUserInfo();
+            }, 1000);
         }
 
-        function signInWithGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider)
-                .then(result => {
-                    const user = result.user;
-                    showSuccess(`مرحباً ${user.displayName}! جاري التحميل...`);
-                    
-                    setTimeout(() => {
-                        loadUserData(user.uid, user.displayName, user.photoURL);
-                    }, 1500);
-                })
-                .catch(error => {
-                    console.error('خطأ في تسجيل الدخول:', error);
-                    showError('فشل تسجيل الدخول بجوجل');
-                });
-        }
-
-        // ==================== دوال الزائر الجديدة ====================
-        function quickGuestAccess() {
-            // إنشاء اسم زائر عشوائي
-            const guestNames = ['مغامر', 'متحدي', 'بطل', 'نجم', 'سريع', 'ذكي', 'محظوظ'];
-            const randomName = guestNames[Math.floor(Math.random() * guestNames.length)] + Math.floor(Math.random() * 1000);
-            
-            showSuccess(`✨ مرحباً ${randomName}! جاري الدخول كزائر...`);
-            
-            // محاولة تسجيل الدخول المجهول عبر Firebase
-            auth.signInAnonymously()
-                .then(result => {
-                    const user = result.user;
-                    return user.updateProfile({
-                        displayName: randomName
-                    }).then(() => {
-                        return { user, randomName };
-                    });
-                })
-                .then(({ user, randomName }) => {
-                    // حفظ في localStorage
-                    localStorage.setItem('guestMode', 'true');
-                    localStorage.setItem('guestName', randomName);
-                    
-                    setTimeout(() => {
-                        loadUserData(user.uid, randomName, null);
-                        showToast(`🎮 أهلاً بك يا ${randomName}`, 'success');
-                    }, 1000);
-                })
-                .catch(error => {
-                    console.error('خطأ في الدخول السريع:', error);
-                    // إذا فشل الاتصال بـ Firebase، استخدم الوضع المحلي
-                    useLocalGuestMode();
-                });
-        }
-
-        function useLocalGuestMode() {
-            const guestNames = ['مغامر', 'متحدي', 'بطل', 'نجم', 'سريع', 'ذكي', 'محظوظ', 'ضيف'];
-            const randomName = guestNames[Math.floor(Math.random() * guestNames.length)] + Math.floor(Math.random() * 1000);
-            
-            // إنشاء معرف محلي
-            const localUserId = 'local_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-            
-            showSuccess(`✨ مرحباً ${randomName}! وضع اللعب المحلي`);
-            
-            // تفعيل الوضع المحلي
-            gameState.localMode = true;
-            gameState.userId = localUserId;
-            gameState.playerName = randomName;
-            
-            // تحميل الإحصائيات المحلية إن وجدت
-            loadLocalStats();
-            
-            // حفظ في localStorage
-            localStorage.setItem('guestMode', 'true');
-            localStorage.setItem('guestName', randomName);
-            localStorage.setItem('localUserId', localUserId);
-            
-            // تحديث الواجهة
-            document.getElementById('authScreen').classList.add('hidden');
-            document.getElementById('startScreen').classList.remove('hidden');
-            
-            updateAuthUI({
-                uid: localUserId,
-                displayName: randomName,
-                photoURL: null,
-                isLocal: true
-            });
-            
-            gameState.players[0].name = randomName;
-            updatePlayerDisplay();
-            updateStatsDisplay();
-            
-            showToast(`🎮 أهلاً بك ${randomName} في وضع الزائر`, 'success');
-        }
-
-        function loadLocalStats() {
-            const savedGames = localStorage.getItem('guestGames');
-            const savedWins = localStorage.getItem('guestWins');
-            const savedFastest = localStorage.getItem('guestFastest');
-            
-            gameState.stats = {
-                games: savedGames ? parseInt(savedGames) : 0,
-                wins: savedWins ? parseInt(savedWins) : 0,
-                fastestWin: savedFastest || null
-            };
-        }
-
-        function saveGuestStats() {
-            if (gameState.localMode) {
-                localStorage.setItem('guestGames', gameState.stats.games.toString());
-                localStorage.setItem('guestWins', gameState.stats.wins.toString());
-                if (gameState.stats.fastestWin) {
-                    localStorage.setItem('guestFastest', gameState.stats.fastestWin);
+        function logout() {
+            if (!gameState.isGuest) {
+                // حفظ الإحصائيات قبل تسجيل الخروج
+                if (gameState.userId) {
+                    database.ref('users/' + gameState.userId + '/stats').set(gameState.stats);
                 }
+                auth.signOut();
             }
+            
+            gameState.isGuest = true;
+            gameState.userId = null;
+            
+            document.getElementById('authScreen').classList.remove('hidden');
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('userInfoBar').style.display = 'none';
         }
 
-        // ==================== دوال Firebase والمستخدم ====================
-        function loadUserData(uid, displayName, photoURL) {
-            gameState.userId = uid;
-            gameState.localMode = false;
+        function updateUserInfo() {
+            const user = auth.currentUser;
+            const infoBar = document.getElementById('userInfoBar');
+            const userAvatar = document.getElementById('userAvatar');
+            const userDisplayName = document.getElementById('userDisplayName');
             
-            const userRef = database.ref('users/' + uid);
-            userRef.once('value', snapshot => {
-                const userData = snapshot.val();
-                
-                if (userData) {
-                    gameState.playerName = userData.name || displayName;
-                    gameState.stats = userData.stats || {
-                        games: 0,
-                        wins: 0,
-                        fastestWin: null
-                    };
-                } else {
-                    gameState.playerName = displayName;
-                    gameState.stats = {
-                        games: 0,
-                        wins: 0,
-                        fastestWin: null
-                    };
-                    
-                    userRef.set({
-                        name: displayName,
-                        avatar: photoURL || '👤',
-                        stats: gameState.stats,
-                        lastLogin: Date.now()
-                    });
-                }
-                
-                updateAuthUI({
-                    uid,
-                    displayName: gameState.playerName,
-                    photoURL
-                });
-                
-                gameState.players[0].name = gameState.playerName;
-                updatePlayerDisplay();
-                updateStatsDisplay();
-            });
+            if (user && !gameState.isGuest) {
+                infoBar.style.display = 'flex';
+                userAvatar.innerHTML = '👤';
+                userDisplayName.textContent = user.displayName || 'مستخدم';
+                gameState.playerName = user.displayName || 'مستخدم';
+            } else if (gameState.isGuest) {
+                infoBar.style.display = 'flex';
+                userAvatar.innerHTML = '⚡';
+                userDisplayName.textContent = 'زائر';
+                gameState.playerName = localStorage.getItem('playerName') || 'زائر';
+            }
             
-            loadLeaderboard();
+            gameState.players[0].name = gameState.playerName;
+            document.getElementById('playerName').textContent = gameState.playerName;
         }
 
         // مراقبة حالة المصادقة
         auth.onAuthStateChanged(user => {
-            if (user && !user.isAnonymous) {
-                // مستخدم مسجل دخول
-                document.getElementById('authScreen').classList.add('hidden');
-                document.getElementById('startScreen').classList.remove('hidden');
+            if (user) {
+                gameState.isGuest = false;
+                gameState.userId = user.uid;
+                gameState.playerName = user.displayName || 'مستخدم';
                 
-                loadUserData(user.uid, user.displayName || 'مستخدم', user.photoURL);
-            } else if (user && user.isAnonymous) {
-                // مستخدم مجهول (زائر)
-                document.getElementById('authScreen').classList.add('hidden');
-                document.getElementById('startScreen').classList.remove('hidden');
+                // تحميل الإحصائيات
+                database.ref('users/' + user.uid + '/stats').once('value')
+                    .then(snapshot => {
+                        const stats = snapshot.val();
+                        if (stats) {
+                            gameState.stats = stats;
+                            updateStatsDisplay();
+                        }
+                    });
                 
-                loadUserData(user.uid, user.displayName || 'زائر', null);
-            } else {
-                // لا يوجد مستخدم - نتحقق من وجود جلسة محلية
-                if (!checkGuestSession()) {
-                    document.getElementById('authScreen').classList.remove('hidden');
-                    document.getElementById('startScreen').classList.add('hidden');
-                    document.getElementById('gameScreen').classList.add('hidden');
-                    
-                    updateAuthUI(null);
-                    resetStats();
-                }
+                updateUserInfo();
             }
         });
 
-        function checkGuestSession() {
-            const guestMode = localStorage.getItem('guestMode');
-            const guestName = localStorage.getItem('guestName');
-            const localUserId = localStorage.getItem('localUserId');
+        // ==================== إعدادات مستوى الصعوبة ====================
+        function setDifficulty(level, btn) {
+            gameState.difficulty = level;
             
-            if (guestMode === 'true' && guestName && localUserId) {
-                // استعادة جلسة الزائر
-                gameState.localMode = true;
-                gameState.userId = localUserId;
-                gameState.playerName = guestName;
-                loadLocalStats();
-                
-                document.getElementById('authScreen').classList.add('hidden');
-                document.getElementById('startScreen').classList.remove('hidden');
-                
-                updateAuthUI({
-                    uid: localUserId,
-                    displayName: guestName,
-                    photoURL: null,
-                    isLocal: true
-                });
-                
-                gameState.players[0].name = guestName;
-                updatePlayerDisplay();
-                updateStatsDisplay();
-                
-                showToast(`👋 مرحبا بعودتك ${guestName}`, 'success');
-                return true;
-            }
-            return false;
-        }
-
-        function updateAuthUI(user) {
-            const userInfo = document.getElementById('userInfo');
-            const userAvatar = document.getElementById('userAvatar');
-            const userDisplayName = document.getElementById('userDisplayName');
-            
-            if (user) {
-                userInfo.style.display = 'flex';
-                
-                if (user.isLocal) {
-                    userAvatar.innerHTML = '⚡';
-                    userDisplayName.innerHTML = user.displayName + ' <span class="guest-indicator">زائر</span>';
-                    
-                    const logoutBtn = document.querySelector('.logout-btn');
-                    if (logoutBtn) {
-                        logoutBtn.textContent = 'خروج';
-                    }
-                } else {
-                    if (user.photoURL) {
-                        userAvatar.innerHTML = `<img src="${user.photoURL}" alt="avatar">`;
-                    } else {
-                        userAvatar.innerHTML = '👤';
-                    }
-                    userDisplayName.textContent = user.displayName;
-                }
-            } else {
-                userInfo.style.display = 'none';
-            }
-        }
-
-        function logout() {
-            if (gameState.localMode) {
-                // تنظيف البيانات المحلية
-                localStorage.removeItem('guestMode');
-                localStorage.removeItem('guestName');
-                localStorage.removeItem('localUserId');
-                gameState.localMode = false;
-                
-                showToast('تم الخروج من وضع الزائر', 'info');
-                updateAuthUI(null);
-                resetStats();
-                
-                document.getElementById('authScreen').classList.remove('hidden');
-                document.getElementById('startScreen').classList.add('hidden');
-            } else {
-                auth.signOut()
-                    .then(() => {
-                        showToast('تم تسجيل الخروج', 'info');
-                        updateAuthUI(null);
-                        resetStats();
-                        
-                        document.getElementById('authScreen').classList.remove('hidden');
-                        document.getElementById('startScreen').classList.add('hidden');
-                    })
-                    .catch(error => {
-                        console.error('خطأ في تسجيل الخروج:', error);
-                    });
-            }
-        }
-
-        function resetStats() {
-            gameState.userId = null;
-            gameState.localMode = false;
-            gameState.playerName = localStorage.getItem('playerName') || 'لاعب';
-            gameState.stats = {
-                games: 0,
-                wins: 0,
-                fastestWin: null
-            };
-            updateStatsDisplay();
-            updatePlayerDisplay();
-        }
-
-        function saveUserStats() {
-            if (gameState.localMode) {
-                saveGuestStats();
-            } else if (gameState.userId) {
-                const userRef = database.ref('users/' + gameState.userId);
-                userRef.update({
-                    name: gameState.playerName,
-                    stats: gameState.stats,
-                    lastPlayed: Date.now()
-                });
-                
-                loadLeaderboard();
-            }
-        }
-
-        function loadLeaderboard() {
-            if (gameState.localMode) {
-                // عرض إحصائيات محلية
-                displayLocalLeaderboard();
-                return;
-            }
-            
-            const leaderboardRef = database.ref('users').orderByChild('stats/wins').limitToLast(10);
-            
-            leaderboardRef.on('value', snapshot => {
-                const leaderboard = [];
-                snapshot.forEach(childSnapshot => {
-                    const userData = childSnapshot.val();
-                    if (userData.stats) {
-                        leaderboard.push({
-                            name: userData.name || 'زائر',
-                            avatar: userData.avatar || '👤',
-                            wins: userData.stats.wins || 0,
-                            fastestWin: userData.stats.fastestWin || '--'
-                        });
-                    }
-                });
-                
-                leaderboard.sort((a, b) => b.wins - a.wins);
-                displayLeaderboard(leaderboard.slice(0, 10));
+            document.querySelectorAll('.difficulty-btn').forEach(b => {
+                b.classList.remove('active');
             });
+            btn.classList.add('active');
+            
+            document.getElementById('difficultyDisplay').textContent = 
+                level === 'easy' ? '🌱 سهل' : level === 'medium' ? '⚡ متوسط' : '🔥 صعب';
+            
+            showToast(`مستوى الصعوبة: ${level === 'easy' ? 'سهل' : level === 'medium' ? 'متوسط' : 'صعب'}`);
         }
 
-        function displayLocalLeaderboard() {
-            const leaderboardList = document.getElementById('leaderboardList');
-            const wins = gameState.stats.wins || 0;
-            const fastest = gameState.stats.fastestWin || '--';
-            
-            leaderboardList.innerHTML = `
-                <div class="leaderboard-item">
-                    <div class="leaderboard-rank">1</div>
-                    <div class="leaderboard-avatar">⚡</div>
-                    <div class="leaderboard-name">${gameState.playerName} (محلي)</div>
-                    <div class="leaderboard-stats">
-                        <span class="leaderboard-stat">🏆 ${wins}</span>
-                        <span class="leaderboard-stat">⚡ ${fastest}</span>
-                    </div>
-                </div>
-                <div class="leaderboard-item">
-                    <div class="leaderboard-rank">2</div>
-                    <div class="leaderboard-avatar">👤</div>
-                    <div class="leaderboard-name">سجل شخصي</div>
-                    <div class="leaderboard-stats">
-                        <span class="leaderboard-stat">🎯 استمر</span>
-                    </div>
-                </div>
-            `;
-        }
-
-        function displayLeaderboard(players) {
-            const leaderboardList = document.getElementById('leaderboardList');
-            
-            if (players.length === 0) {
-                leaderboardList.innerHTML = `
-                    <div class="leaderboard-item">
-                        <div class="leaderboard-rank">1</div>
-                        <div class="leaderboard-avatar">👤</div>
-                        <div class="leaderboard-name">لا يوجد لاعبين</div>
-                        <div class="leaderboard-stats">
-                            <span class="leaderboard-stat">🏆 0</span>
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-            
-            leaderboardList.innerHTML = players.map((player, index) => `
-                <div class="leaderboard-item">
-                    <div class="leaderboard-rank">${index + 1}</div>
-                    <div class="leaderboard-avatar">${player.avatar}</div>
-                    <div class="leaderboard-name">${player.name}</div>
-                    <div class="leaderboard-stats">
-                        <span class="leaderboard-stat">🏆 ${player.wins}</span>
-                        ${player.fastestWin !== '--' ? `<span class="leaderboard-stat">⚡ ${player.fastestWin}ث</span>` : ''}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // ==================== دوال اللعبة ====================
+        // ==================== دوال اللعبة الأساسية ====================
         function init() {
             gameState.players[0].name = gameState.playerName;
             updatePlayerDisplay();
-            updateStatsDisplay();
+            loadStats();
             
-            // التحقق من جلسة الزائر
-            checkGuestSession();
-            
-            function setHeight() {
-                const vh = window.innerHeight * 0.01;
-                document.documentElement.style.setProperty('--vh', `${vh}px`);
+            // منع القوائم الافتراضية
+            document.addEventListener('contextmenu', e => e.preventDefault());
+        }
+
+        function loadStats() {
+            const saved = localStorage.getItem('gameStats');
+            if (saved && gameState.isGuest) {
+                gameState.stats = JSON.parse(saved);
+                updateStatsDisplay();
             }
-            
-            window.addEventListener('resize', setHeight);
-            window.addEventListener('orientationchange', setHeight);
-            setHeight();
+        }
+
+        function saveStats() {
+            if (gameState.isGuest) {
+                localStorage.setItem('gameStats', JSON.stringify(gameState.stats));
+            } else if (gameState.userId) {
+                database.ref('users/' + gameState.userId + '/stats').set(gameState.stats);
+            }
+            updateStatsDisplay();
+        }
+
+        function updatePlayerDisplay() {
+            document.getElementById('playerName').textContent = gameState.playerName;
+            document.getElementById('playerAvatar').textContent = gameState.isGuest ? '⚡' : '👤';
         }
 
         function updateStatsDisplay() {
             document.getElementById('gamesPlayed').textContent = gameState.stats.games;
             document.getElementById('winsCount').textContent = gameState.stats.wins;
-            document.getElementById('fastestWin').textContent = gameState.stats.fastestWin ? gameState.stats.fastestWin + 'ث' : '--';
-        }
-
-        function updatePlayerDisplay() {
-            document.getElementById('playerName').textContent = gameState.playerName;
-            document.getElementById('playerAvatar').textContent = gameState.localMode ? '⚡' : '👤';
+            document.getElementById('fastestWin').textContent = 
+                gameState.stats.fastestWin ? gameState.stats.fastestWin + 'ث' : '--';
         }
 
         function editName() {
-            const newName = prompt('أدخل اسمك الجديد', gameState.playerName);
+            const newName = prompt('أدخل اسمك', gameState.playerName);
             if (newName && newName.trim()) {
                 gameState.playerName = newName.trim();
                 gameState.players[0].name = gameState.playerName;
                 localStorage.setItem('playerName', gameState.playerName);
                 updatePlayerDisplay();
-                
-                if (gameState.localMode) {
-                    localStorage.setItem('guestName', gameState.playerName);
-                } else if (gameState.userId) {
-                    database.ref('users/' + gameState.userId).update({
-                        name: gameState.playerName
-                    });
-                }
-                
-                showToast('✅ تم تحديث الاسم', 'success');
-                playSound('click');
+                showToast('✅ تم تحديث الاسم');
             }
         }
 
-        function selectCategory(category) {
+        function selectCategory(category, btn) {
             gameState.currentCategory = category;
-            
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.querySelector(`[data-category="${category}"]`).classList.add('active');
-            
-            playSound('click');
-            showToast(`📚 تم اختيار: ${categories[category].name}`, 'info');
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
         }
 
-        function startGame() {
-            playSound('click');
-            
-            document.getElementById('startScreen').classList.add('hidden');
-            document.getElementById('gameScreen').classList.remove('hidden');
-            
-            const category = categories[gameState.currentCategory];
-            document.getElementById('categoryIcon').textContent = category.icon;
-            document.getElementById('categoryName').textContent = category.name;
-            
-            gameState.currentRound = 1;
-            gameState.currentPlayerIndex = 0;
-            gameState.gameActive = true;
-            gameState.stats.games++;
-            
-            saveUserStats();
-            updateStatsDisplay();
-            
-            initializeRound();
-            showToast(`🎮 بدأت اللعبة - ${category.name}`, 'success');
-        }
-
-        function initializeRound() {
-            const deck = createDeck();
-            const shuffled = shuffleArray([...deck]);
-            
-            gameState.players.forEach((player, index) => {
-                const startIdx = index * 4;
-                gameState.cards[player.id] = shuffled.slice(startIdx, startIdx + 4);
-            });
-
-            updateDisplay();
-            startTimer(60);
-            updateRoundDisplay();
-        }
-
+        // ==================== إنشاء وتوزيع الأوراق ====================
         function createDeck() {
             const deck = [];
             const category = categories[gameState.currentCategory];
             
-            category.items.forEach((item) => {
+            category.items.forEach(item => {
                 for (let i = 0; i < 4; i++) {
                     deck.push({
                         id: `card-${item.name}-${i}-${Date.now()}-${Math.random()}`,
                         emoji: item.emoji,
-                        name: item.name,
-                        category: gameState.currentCategory
+                        name: item.name
                     });
                 }
             });
             
-            return deck;
+            return deck; // 16 ورقة
+        }
+
+        function distributeCards() {
+            const deck = createDeck();
+            const shuffled = shuffleArray([...deck]);
+            
+            // لاعب عشوائي يأخذ 5 أوراق
+            const playerWithFive = Math.floor(Math.random() * 4);
+            
+            gameState.players.forEach((player, index) => {
+                if (index === playerWithFive) {
+                    gameState.cards[player.id] = shuffled.slice(0, 5);
+                } else {
+                    const startIdx = index < playerWithFive ? 
+                        (index * 4 + 1) : 
+                        ((index - 1) * 4 + 5);
+                    gameState.cards[player.id] = shuffled.slice(startIdx, startIdx + 4);
+                }
+            });
+            
+            gameState.currentPlayerIndex = playerWithFive;
+            gameState.passState.playerId = gameState.players[playerWithFive].id;
         }
 
         function shuffleArray(array) {
@@ -2414,34 +1639,432 @@
             return array;
         }
 
-        function updateDisplay() {
-            updatePlayersProgress();
-            displayMyCards();
-            updateRoundDisplay();
-            checkWinButton();
-            updateCardsHighlight();
+        // ==================== بدء اللعبة ====================
+        function startGame() {
+            showToast('🎮 بدء اللعبة...');
+            
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            
+            const category = categories[gameState.currentCategory];
+            document.getElementById('categoryIcon').textContent = category.icon;
+            document.getElementById('categoryName').textContent = category.name;
+            
+            gameState.currentRound = 1;
+            gameState.gameActive = true;
+            gameState.stats.games++;
+            saveStats();
+            
+            distributeCards();
+            createWinButtons();
+            updateDisplay();
+            startTimer(60);
+            startPassingPhase(gameState.passState.playerId);
         }
 
-        function updateCardsHighlight() {
-            const myCards = gameState.cards['player1'] || [];
-            const counts = {};
+        function createWinButtons() {
+            const container = document.getElementById('winButtonsContainer');
+            container.innerHTML = '';
             
-            myCards.forEach(card => {
-                counts[card.name] = (counts[card.name] || 0) + 1;
+            gameState.players.forEach(player => {
+                const btn = document.createElement('button');
+                btn.className = 'win-button';
+                btn.id = `winBtn-${player.id}`;
+                btn.setAttribute('data-player', player.id);
+                btn.disabled = true;
+                btn.onclick = () => pressWinButton(player.id);
+                btn.innerHTML = `<span>🏆</span> ${player.name} - جمع 4 أوراق!`;
+                container.appendChild(btn);
             });
+        }
 
-            const cards = document.querySelectorAll('.card-modern');
-            cards.forEach((card, index) => {
-                const cardName = myCards[index]?.name;
-                const count = counts[cardName] || 0;
-                card.setAttribute('data-same', count);
+        // ==================== نظام التمرير مع مستويات الصعوبة ====================
+        function startPassingPhase(playerId) {
+            if (!gameState.gameActive || gameState.winState.isActive) return;
+            
+            gameState.passState.isActive = true;
+            gameState.passState.playerId = playerId;
+            gameState.passState.timeLeft = 5;
+            gameState.passState.selectedCardIndex = -1;
+            
+            updatePlayersProgress();
+            showPassTimer();
+            startPassCountdown();
+            
+            const player = gameState.players.find(p => p.id === playerId);
+            showToast(`⏱️ دور ${player.name} - 5 ثواني للتمرير`);
+            
+            if (playerId === 'player') {
+                highlightPlayerCards();
+            }
+            
+            // إذا كان الدور على روبوت، يقوم بالتمرير حسب مستوى الصعوبة
+            if (player.type === 'robot') {
+                let delay = 2000; // متوسط
+                if (gameState.difficulty === 'easy') delay = 3000; // أبطأ
+                if (gameState.difficulty === 'hard') delay = 1000; // أسرع
                 
-                if (count >= 4) {
-                    card.classList.add('winning-card');
-                } else {
-                    card.classList.remove('winning-card');
+                setTimeout(() => robotPass(playerId), delay);
+            }
+        }
+
+        function robotPass(robotId) {
+            if (!gameState.passState.isActive || gameState.passState.playerId !== robotId) return;
+            
+            const cards = gameState.cards[robotId];
+            let indexToPass = 0;
+            
+            // استراتيجية الروبوت حسب مستوى الصعوبة
+            if (gameState.difficulty === 'easy') {
+                // سهل: يمرر عشوائياً
+                indexToPass = Math.floor(Math.random() * cards.length);
+            } else if (gameState.difficulty === 'medium') {
+                // متوسط: يمرر بطاقة لا تفسد مجموعته
+                const counts = {};
+                cards.forEach(c => { counts[c.name] = (counts[c.name] || 0) + 1; });
+                
+                let minCount = 5;
+                cards.forEach((card, index) => {
+                    if (counts[card.name] < minCount) {
+                        minCount = counts[card.name];
+                        indexToPass = index;
+                    }
+                });
+            } else {
+                // صعب: يمرر بطاقة استراتيجياً ليفوز بأسرع وقت
+                const counts = {};
+                cards.forEach(c => { counts[c.name] = (counts[c.name] || 0) + 1; });
+                
+                // يفضل الاحتفاظ بالبطاقات التي تقترب من 4
+                let bestScore = 0;
+                cards.forEach((card, index) => {
+                    const score = counts[card.name] * 10 + Math.random();
+                    if (score < bestScore || bestScore === 0) {
+                        bestScore = score;
+                        indexToPass = index;
+                    }
+                });
+            }
+            
+            setTimeout(() => {
+                if (gameState.passState.isActive && gameState.passState.playerId === robotId) {
+                    executePass(robotId, indexToPass);
+                }
+            }, 500);
+        }
+
+        function showPassTimer() {
+            const timerEl = document.getElementById('passTimer');
+            const valueEl = document.getElementById('passTimerValue');
+            timerEl.style.display = 'flex';
+            valueEl.textContent = gameState.passState.timeLeft;
+            timerEl.classList.remove('warning');
+        }
+
+        function startPassCountdown() {
+            if (gameState.passState.timer) {
+                clearInterval(gameState.passState.timer);
+            }
+            
+            gameState.passState.timer = setInterval(() => {
+                gameState.passState.timeLeft--;
+                
+                const valueEl = document.getElementById('passTimerValue');
+                const timerEl = document.getElementById('passTimer');
+                
+                if (valueEl) {
+                    valueEl.textContent = gameState.passState.timeLeft;
+                }
+                
+                if (gameState.passState.timeLeft <= 2) {
+                    timerEl.classList.add('warning');
+                }
+                
+                if (gameState.passState.timeLeft <= 0) {
+                    clearInterval(gameState.passState.timer);
+                    document.getElementById('passTimer').style.display = 'none';
+                    
+                    if (gameState.passState.isActive) {
+                        if (gameState.passState.playerId === 'player' && gameState.passState.selectedCardIndex === -1) {
+                            autoPass();
+                        } else if (gameState.passState.selectedCardIndex !== -1) {
+                            executePass(gameState.passState.playerId, gameState.passState.selectedCardIndex);
+                        } else {
+                            autoPass();
+                        }
+                    }
+                }
+            }, 1000);
+        }
+
+        function selectCard(index) {
+            if (gameState.passState.playerId !== 'player') {
+                showToast('🔵 انتظر دورك', 'warning');
+                return;
+            }
+            
+            if (!gameState.passState.isActive) return;
+            
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+            
+            const card = document.querySelectorAll('.card')[index];
+            card.classList.add('selected');
+            card.classList.remove('highlight');
+            
+            gameState.passState.selectedCardIndex = index;
+        }
+
+        function passSelectedCard() {
+            if (gameState.passState.playerId !== 'player') {
+                showToast('❌ ليس دورك', 'error');
+                return;
+            }
+            
+            if (gameState.passState.selectedCardIndex === -1) {
+                showToast('❌ اختر بطاقة أولاً', 'error');
+                return;
+            }
+            
+            executePass('player', gameState.passState.selectedCardIndex);
+        }
+
+        function executePass(playerId, cardIndex) {
+            const playerCards = gameState.cards[playerId];
+            
+            const currentIndex = gameState.players.findIndex(p => p.id === playerId);
+            const nextIndex = (currentIndex + 1) % 4;
+            const nextPlayer = gameState.players[nextIndex];
+            
+            const passedCard = {...playerCards[cardIndex]};
+            playerCards.splice(cardIndex, 1);
+            gameState.cards[nextPlayer.id].push(passedCard);
+            
+            endPassingPhase();
+            updateDisplay();
+            
+            showToast(`🔄 تم تمرير ${passedCard.name} إلى ${nextPlayer.name}`);
+            
+            checkWinCondition();
+            
+            if (gameState.gameActive && !gameState.winState.isActive) {
+                setTimeout(() => {
+                    startPassingPhase(nextPlayer.id);
+                }, 500);
+            }
+        }
+
+        function autoPass() {
+            if (!gameState.passState.isActive) return;
+            
+            const playerId = gameState.passState.playerId;
+            const cards = gameState.cards[playerId];
+            
+            showToast('⚠️ انتهاء الوقت - تمرير تلقائي', 'warning');
+            executePass(playerId, 0);
+        }
+
+        function endPassingPhase() {
+            gameState.passState.isActive = false;
+            gameState.passState.selectedCardIndex = -1;
+            
+            if (gameState.passState.timer) {
+                clearInterval(gameState.passState.timer);
+            }
+            
+            document.getElementById('passTimer').style.display = 'none';
+            
+            document.querySelectorAll('.card').forEach(c => {
+                c.classList.remove('selected', 'highlight');
+            });
+        }
+
+        function highlightPlayerCards() {
+            document.querySelectorAll('.card').forEach(card => {
+                card.classList.add('highlight');
+            });
+        }
+
+        // ==================== نظام الفوز ====================
+        function checkWinCondition() {
+            gameState.players.forEach(player => {
+                const cards = gameState.cards[player.id];
+                const counts = {};
+                
+                cards.forEach(card => {
+                    counts[card.name] = (counts[card.name] || 0) + 1;
+                });
+                
+                const maxSame = Math.max(...Object.values(counts), 0);
+                
+                if (maxSame >= 4 && !gameState.winState.isActive) {
+                    activateWinPhase(player.id);
                 }
             });
+        }
+
+        function activateWinPhase(firstWinnerId) {
+            gameState.winState.isActive = true;
+            gameState.winState.firstWinner = firstWinnerId;
+            gameState.winState.startTime = Date.now();
+            gameState.winState.winners = [firstWinnerId];
+            gameState.winState.pressTimes = { [firstWinnerId]: 0 };
+            
+            endPassingPhase();
+            
+            document.querySelectorAll('.win-button').forEach(btn => {
+                btn.disabled = false;
+                btn.classList.add('pulse');
+            });
+            
+            const winnerBtn = document.getElementById(`winBtn-${firstWinnerId}`);
+            if (winnerBtn) {
+                winnerBtn.disabled = true;
+                winnerBtn.classList.remove('pulse');
+                winnerBtn.innerHTML = `<span>🏆</span> فائز!`;
+            }
+            
+            const winner = gameState.players.find(p => p.id === firstWinnerId);
+            showToast(`🏆 ${winner.name} جمع 4 أوراق! الآخرون يضغطون!`, 'warning');
+            
+            // الروبوتات تضغط حسب مستوى الصعوبة
+            gameState.players.forEach(player => {
+                if (player.type === 'robot' && player.id !== firstWinnerId) {
+                    let delay = 1500; // متوسط
+                    if (gameState.difficulty === 'easy') delay = 2500; // أبطأ
+                    if (gameState.difficulty === 'hard') delay = 500; // أسرع
+                    
+                    setTimeout(() => robotPressWin(player.id), delay);
+                }
+            });
+            
+            setTimeout(() => {
+                if (gameState.winState.isActive) {
+                    endWinPhase();
+                }
+            }, 3000);
+        }
+
+        function pressWinButton(playerId) {
+            if (!gameState.winState.isActive) return;
+            if (gameState.winState.winners.includes(playerId)) return;
+            
+            const pressTime = Date.now() - gameState.winState.startTime;
+            
+            gameState.winState.winners.push(playerId);
+            gameState.winState.pressTimes[playerId] = pressTime;
+            
+            const btn = document.getElementById(`winBtn-${playerId}`);
+            if (btn) {
+                btn.disabled = true;
+                btn.classList.remove('pulse');
+                btn.innerHTML = `<span>✅</span> ضغط!`;
+            }
+            
+            showToast(`⚡ ${getPlayerName(playerId)} ضغط!`);
+            
+            if (gameState.winState.winners.length === 4) {
+                endWinPhase();
+            }
+        }
+
+        function robotPressWin(robotId) {
+            if (!gameState.winState.isActive) return;
+            if (gameState.winState.winners.includes(robotId)) return;
+            
+            pressWinButton(robotId);
+        }
+
+        function endWinPhase() {
+            gameState.winState.isActive = false;
+            gameState.gameActive = false;
+            
+            document.querySelectorAll('.win-button').forEach(btn => {
+                btn.disabled = true;
+                btn.classList.remove('pulse');
+            });
+            
+            const sorted = [...gameState.winState.winners].sort((a, b) => 
+                (gameState.winState.pressTimes[a] || 0) - (gameState.winState.pressTimes[b] || 0)
+            );
+            
+            let loser = null;
+            if (sorted.length < 4) {
+                const allIds = gameState.players.map(p => p.id);
+                loser = allIds.find(id => !sorted.includes(id));
+            } else {
+                loser = sorted[sorted.length - 1];
+            }
+            
+            updateWinnerStats(sorted[0]);
+            showResults(sorted, loser);
+        }
+
+        function updateWinnerStats(winnerId) {
+            if (winnerId === 'player') {
+                gameState.stats.wins++;
+                
+                const winTime = 60 - gameState.timeLeft;
+                if (!gameState.stats.fastestWin || winTime < gameState.stats.fastestWin) {
+                    gameState.stats.fastestWin = winTime;
+                }
+                
+                saveStats();
+            }
+        }
+
+        function getPlayerName(playerId) {
+            const player = gameState.players.find(p => p.id === playerId);
+            return player ? player.name : 'لاعب';
+        }
+
+        function showResults(winners, loser) {
+            const modal = document.getElementById('resultsModal');
+            const list = document.getElementById('resultsList');
+            
+            let html = '';
+            
+            winners.forEach((playerId, index) => {
+                const player = gameState.players.find(p => p.id === playerId);
+                const pressTime = gameState.winState.pressTimes[playerId] || 0;
+                
+                let medal = '';
+                if (index === 0) medal = '🥇';
+                else if (index === 1) medal = '🥈';
+                else if (index === 2) medal = '🥉';
+                
+                html += `
+                    <div class="result-item">
+                        <div class="result-rank">${index + 1}</div>
+                        <div class="result-avatar">${player.avatar}</div>
+                        <div class="result-name">${player.name}</div>
+                        <div class="result-time">${(pressTime / 1000).toFixed(2)}ث</div>
+                        ${medal ? `<span>${medal}</span>` : ''}
+                    </div>
+                `;
+            });
+            
+            if (loser) {
+                const loserPlayer = gameState.players.find(p => p.id === loser);
+                html += `
+                    <div class="result-item">
+                        <div class="result-rank loser">❌</div>
+                        <div class="result-avatar">${loserPlayer.avatar}</div>
+                        <div class="result-name" style="color: #ff7675;">${loserPlayer.name}</div>
+                        <div>خاسر</div>
+                    </div>
+                `;
+            }
+            
+            list.innerHTML = html;
+            modal.classList.add('show');
+            document.getElementById('overlay').classList.add('show');
+        }
+
+        // ==================== دوال العرض ====================
+        function updateDisplay() {
+            updatePlayersProgress();
+            displayCards();
+            updateRoundDisplay();
         }
 
         function updatePlayersProgress() {
@@ -2454,47 +2077,44 @@
                 const progress = (maxSame / 4) * 100;
 
                 const div = document.createElement('div');
-                div.className = `player-progress-modern ${index === gameState.currentPlayerIndex ? 'active' : ''}`;
-                div.onclick = () => {
-                    if (player.id !== 'player1') {
-                        showToast(`دور ${player.name}`, 'info');
-                        playSound('click');
-                    }
-                };
+                div.className = `player-progress ${index === gameState.currentPlayerIndex ? 'active' : ''} ${gameState.passState.playerId === player.id && gameState.passState.isActive ? 'passing' : ''}`;
                 
                 div.innerHTML = `
-                    <div class="progress-avatar-modern">${player.avatar}</div>
-                    <div class="progress-name-modern">${player.name}</div>
-                    <div class="progress-bar-modern">
-                        <div class="progress-fill-modern" style="width: ${progress}%"></div>
+                    <div class="progress-avatar">${player.avatar}</div>
+                    <div class="progress-name">${player.name}</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${progress}%"></div>
                     </div>
-                    <div class="progress-count-modern">${maxSame}/4</div>
+                    <div class="progress-count">${maxSame}/4</div>
                 `;
                 container.appendChild(div);
             });
         }
 
-        function displayMyCards() {
+        function displayCards() {
             const container = document.getElementById('cardsContainer');
-            const myCards = gameState.cards['player1'] || [];
+            const playerCards = gameState.cards['player'] || [];
 
             container.innerHTML = '';
-            myCards.forEach((card, index) => {
+            
+            playerCards.forEach((card, index) => {
                 const cardEl = document.createElement('div');
-                cardEl.className = 'card-modern';
-                cardEl.onclick = () => exchangeCard(index, cardEl);
+                cardEl.className = 'card';
+                cardEl.onclick = () => selectCard(index);
                 cardEl.innerHTML = `
-                    <div class="card-emoji-modern">${card.emoji}</div>
-                    <div class="card-name-modern">${card.name}</div>
+                    <div class="card-emoji">${card.emoji}</div>
+                    <div class="card-name">${card.name}</div>
                 `;
                 container.appendChild(cardEl);
-                
-                setTimeout(() => {
-                    cardEl.style.opacity = '1';
-                }, index * 100);
             });
             
-            updateCardsHighlight();
+            if (gameState.passState.playerId === 'player' && gameState.passState.isActive) {
+                const passBtn = document.createElement('button');
+                passBtn.className = 'pass-button';
+                passBtn.onclick = passSelectedCard;
+                passBtn.innerHTML = '<span>🔄</span> تمرير البطاقة المختارة';
+                container.appendChild(passBtn);
+            }
         }
 
         function getMaxSameCards(cards) {
@@ -2503,177 +2123,20 @@
             cards.forEach(card => {
                 counts[card.name] = (counts[card.name] || 0) + 1;
             });
-            return Math.max(...Object.values(counts));
+            return Math.max(...Object.values(counts), 0);
         }
 
         function updateRoundDisplay() {
             document.getElementById('roundDisplay').textContent = `الجولة ${gameState.currentRound}`;
         }
 
-        function checkWinButton() {
-            const myCards = gameState.cards['player1'];
-            const maxSame = getMaxSameCards(myCards);
-            const winButton = document.getElementById('winButton');
-            
-            if (maxSame >= 4) {
-                winButton.disabled = false;
-                winButton.classList.add('pulse');
-            } else {
-                winButton.disabled = true;
-                winButton.classList.remove('pulse');
-            }
-        }
-
-        function exchangeCard(index, element) {
-            if (!gameState.gameActive) {
-                showToast('اللعبة غير نشطة', 'warning');
-                return;
-            }
-
-            if (Date.now() - gameState.lastAction < 500) {
-                return;
-            }
-            gameState.lastAction = Date.now();
-
-            playSound('exchange');
-            
-            element.classList.add('exchanging', 'shake-card');
-            
-            const allCards = document.querySelectorAll('.card-modern');
-            allCards.forEach((card, i) => {
-                if (i !== index) {
-                    card.classList.add('bounce-card');
-                    setTimeout(() => card.classList.remove('bounce-card'), 500);
-                }
-            });
-
-            setTimeout(() => {
-                element.classList.remove('exchanging', 'shake-card');
-            }, 600);
-
-            const myCards = gameState.cards['player1'];
-            
-            const otherPlayers = gameState.players.filter(p => p.id !== 'player1');
-            const randomPlayer = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
-            const otherPlayerCards = gameState.cards[randomPlayer.id];
-            const randomOtherIndex = Math.floor(Math.random() * otherPlayerCards.length);
-            
-            const myOldCard = myCards[index];
-            const otherOldCard = otherPlayerCards[randomOtherIndex];
-            
-            myCards[index] = otherOldCard;
-            otherPlayerCards[randomOtherIndex] = myOldCard;
-            
-            setTimeout(() => {
-                displayMyCards();
-                updatePlayersProgress();
-                checkWinButton();
-                
-                const newCardElement = document.querySelectorAll('.card-modern')[index];
-                newCardElement.classList.add('new-card');
-                setTimeout(() => newCardElement.classList.remove('new-card'), 500);
-                
-                showToast(`🔄 تم التبادل: ${myOldCard.name} ← ${otherOldCard.name} مع ${randomPlayer.name}`, 'info');
-            }, 300);
-            
-            setTimeout(() => nextPlayer(), 700);
-        }
-
-        function nextPlayer() {
-            gameState.currentPlayerIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
-            updatePlayersProgress();
-            
-            const currentPlayer = gameState.players[gameState.currentPlayerIndex];
-            
-            if (currentPlayer.id !== 'player1') {
-                showToast(`🔵 دور ${currentPlayer.name}`, 'info');
-                
-                const progressElements = document.querySelectorAll('.player-progress-modern');
-                progressElements[gameState.currentPlayerIndex].style.transform = 'scale(1.1)';
-                setTimeout(() => {
-                    progressElements[gameState.currentPlayerIndex].style.transform = '';
-                }, 500);
-                
-                setTimeout(() => computerPlay(currentPlayer.id), 1000);
-            }
-        }
-
-        function computerPlay(playerId) {
-            if (!gameState.gameActive) return;
-            
-            const computerCards = gameState.cards[playerId];
-            const randomIndex = Math.floor(Math.random() * computerCards.length);
-            
-            const otherPlayers = gameState.players.filter(p => p.id !== playerId);
-            const randomPlayer = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
-            const otherPlayerCards = gameState.cards[randomPlayer.id];
-            const randomOtherIndex = Math.floor(Math.random() * otherPlayerCards.length);
-            
-            const computerOldCard = computerCards[randomIndex];
-            const otherOldCard = otherPlayerCards[randomOtherIndex];
-            
-            computerCards[randomIndex] = otherOldCard;
-            otherPlayerCards[randomOtherIndex] = computerOldCard;
-            
-            updatePlayersProgress();
-            
-            const maxSame = getMaxSameCards(computerCards);
-            if (maxSame >= 4) {
-                handleWin(playerId);
-            } else {
-                nextPlayer();
-            }
-        }
-
-        function claimWin() {
-            if (!gameState.gameActive) return;
-            playSound('win');
-            
-            const cards = document.querySelectorAll('.card-modern');
-            cards.forEach(card => {
-                card.classList.add('winning-card', 'celebrate');
-                setTimeout(() => card.classList.remove('celebrate'), 1000);
-            });
-            
-            handleWin('player1');
-        }
-
-        function handleWin(playerId) {
-            gameState.gameActive = false;
-            stopTimer();
-
-            const player = gameState.players.find(p => p.id === playerId);
-            const isMe = playerId === 'player1';
-            
-            if (isMe) {
-                gameState.stats.wins++;
-                const winTime = 60 - gameState.timeLeft;
-                if (!gameState.stats.fastestWin || winTime < gameState.stats.fastestWin) {
-                    gameState.stats.fastestWin = winTime;
-                }
-                
-                saveUserStats();
-                updateStatsDisplay();
-            }
-
-            player.wins++;
-
-            document.getElementById('winnerAvatar').innerHTML = isMe ? '🏆' : player.avatar;
-            document.getElementById('winnerTitle').textContent = isMe ? '🎉 أنت الفائز!' : `🎉 ${player.name} فاز!`;
-            document.getElementById('winnerTime').textContent = `الزمن: ${60 - gameState.timeLeft} ثانية`;
-            
-            document.getElementById('winnerModal').classList.add('show');
-            document.getElementById('overlay').classList.add('show');
-            
-            showToast(isMe ? '🎉 مبروك الفوز!' : `😢 ${player.name} فاز!`, isMe ? 'success' : 'info');
-            launchConfetti();
-        }
-
         function startTimer(seconds) {
             gameState.timeLeft = seconds;
             const timerEl = document.getElementById('timer');
             
-            stopTimer();
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+            }
             
             gameState.timerInterval = setInterval(() => {
                 gameState.timeLeft--;
@@ -2681,17 +2144,26 @@
                 
                 if (gameState.timeLeft <= 10) {
                     timerEl.classList.add('warning');
-                    
-                    timerEl.style.transform = 'scale(1.2)';
-                    setTimeout(() => timerEl.style.transform = '', 200);
-                    
-                    if (gameState.timeLeft <= 3) {
-                        playSound('timer');
-                    }
                 }
                 
                 if (gameState.timeLeft <= 0) {
-                    endRound();
+                    endRoundByTime();
+                }
+            }, 1000);
+        }
+
+        function endRoundByTime() {
+            stopTimer();
+            gameState.gameActive = false;
+            endPassingPhase();
+            
+            showToast('⏱️ انتهى الوقت!');
+            
+            setTimeout(() => {
+                if (confirm('انتهى الوقت! هل تبدأ جولة جديدة؟')) {
+                    nextRound();
+                } else {
+                    endGame();
                 }
             }, 1000);
         }
@@ -2701,160 +2173,66 @@
                 clearInterval(gameState.timerInterval);
                 gameState.timerInterval = null;
             }
-            document.getElementById('timer').classList.remove('warning');
-        }
-
-        function endRound() {
-            stopTimer();
-            gameState.gameActive = false;
-            
-            let maxCount = 0;
-            let winner = null;
-            
-            gameState.players.forEach(player => {
-                const cards = gameState.cards[player.id] || [];
-                const count = getMaxSameCards(cards);
-                if (count > maxCount) {
-                    maxCount = count;
-                    winner = player.id;
-                }
-            });
-            
-            if (winner) {
-                handleWin(winner);
-            } else {
-                showToast('⏱️ انتهى الوقت! لا فائز', 'warning');
-                setTimeout(() => nextRound(), 2000);
-            }
         }
 
         function nextRound() {
-            playSound('click');
-            document.getElementById('winnerModal').classList.remove('show');
-            document.getElementById('overlay').classList.remove('show');
+            closeResults();
             
             gameState.currentRound++;
-            gameState.currentPlayerIndex = 0;
             gameState.gameActive = true;
+            gameState.winState = {
+                isActive: false,
+                firstWinner: null,
+                winners: [],
+                pressTimes: {},
+                startTime: null
+            };
             
-            initializeRound();
-            showToast(`🎯 الجولة ${gameState.currentRound}`, 'info');
+            distributeCards();
+            updateDisplay();
+            startTimer(60);
+            startPassingPhase(gameState.passState.playerId);
+            
+            showToast(`🎯 الجولة ${gameState.currentRound}`);
         }
 
         function endGame() {
-            playSound('click');
-            document.getElementById('winnerModal').classList.remove('show');
-            document.getElementById('overlay').classList.remove('show');
+            closeResults();
+            
             document.getElementById('gameScreen').classList.add('hidden');
             document.getElementById('startScreen').classList.remove('hidden');
             
             stopTimer();
+            endPassingPhase();
             gameState.gameActive = false;
+            gameState.winState.isActive = false;
         }
 
-        function showToast(message, type = 'info') {
-            const existingToast = document.querySelector('.toast-modern');
-            if (existingToast) existingToast.remove();
+        function closeResults() {
+            document.getElementById('resultsModal').classList.remove('show');
+            document.getElementById('overlay').classList.remove('show');
+        }
 
-            const toast = document.createElement('div');
-            toast.className = `toast-modern ${type}`;
-            
-            const icons = {
-                success: '✅',
-                error: '❌',
-                warning: '⚠️',
-                info: 'ℹ️'
-            };
-            
-            toast.innerHTML = `<span>${icons[type] || 'ℹ️'}</span> ${message}`;
-            document.body.appendChild(toast);
+        // ==================== دوال مساعدة ====================
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
             
             setTimeout(() => toast.classList.add('show'), 10);
+            
             setTimeout(() => {
                 toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 300);
-            }, 2500);
-        }
-
-        function launchConfetti() {
-            const confettiContainer = document.createElement('div');
-            confettiContainer.className = 'confetti';
-            document.body.appendChild(confettiContainer);
-            
-            for (let i = 0; i < 50; i++) {
-                setTimeout(() => {
-                    const piece = document.createElement('div');
-                    piece.className = 'confetti-piece';
-                    piece.style.left = Math.random() * 100 + '%';
-                    piece.style.animationDelay = Math.random() * 1 + 's';
-                    piece.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
-                    piece.style.width = Math.random() * 15 + 5 + 'px';
-                    piece.style.height = Math.random() * 20 + 10 + 'px';
-                    confettiContainer.appendChild(piece);
-                    
-                    setTimeout(() => piece.remove(), 3000);
-                }, i * 50);
-            }
-            
-            setTimeout(() => confettiContainer.remove(), 4000);
+                setTimeout(() => toast.style.display = 'none', 300);
+            }, 2000);
         }
 
         function showInstructions() {
-            playSound('click');
-            showToast('🎯 الهدف: جمع 4 كروت متشابهة - التبادل يتم مع اللاعبين الآخرين', 'info');
+            showToast('🎯 الهدف: جمع 4 أوراق متشابهة. لاعب عشوائي يبدأ بـ5 أوراق ويمرر كل 5 ثواني!', 'info');
         }
-
-        function playSound(type) {
-            try {
-                console.log(`🔊 ${type}`);
-            } catch (e) {}
-        }
-
-        function shareResult() {
-            if (!gameState.stats.wins && !gameState.stats.games) {
-                showToast('لا توجد نتائج للمشاركة بعد', 'warning');
-                return;
-            }
-            
-            const mode = gameState.localMode ? '(وضع زائر)' : '';
-            const text = `🎮 لعبة الكلمات الأربعة ${mode}\n🏆 فوز: ${gameState.stats.wins}\n🎯 ألعاب: ${gameState.stats.games}\n⚡ أسرع فوز: ${gameState.stats.fastestWin ? gameState.stats.fastestWin + 'ث' : '--'}`;
-            
-            if (navigator.share) {
-                navigator.share({
-                    title: 'نتيجتي في لعبة الكلمات الأربعة',
-                    text: text
-                }).catch(() => {
-                    copyToClipboard(text);
-                });
-            } else {
-                copyToClipboard(text);
-            }
-        }
-
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                showToast('📋 تم نسخ النتيجة', 'success');
-            }).catch(() => {
-                showToast('❌ فشل النسخ', 'error');
-            });
-        }
-
-        // ==================== منع القوائم الافتراضية ====================
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.addEventListener('selectstart', e => e.preventDefault());
 
         // تهيئة اللعبة
         init();
-
-        // دورة الكمبيوتر التلقائية
-        setInterval(() => {
-            if (!gameState.gameActive) return;
-            
-            const currentPlayer = gameState.players[gameState.currentPlayerIndex];
-            if (currentPlayer.id !== 'player1') {
-                computerPlay(currentPlayer.id);
-            }
-        }, 3500);
     </script>
 </body>
 </html>
