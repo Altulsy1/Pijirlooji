@@ -1219,7 +1219,7 @@
         };
 
         // قوائم الفئات
-       const categories = {
+      const categories = {
   fruits: {
     name: 'فواكه',
     icon: '🍎',
@@ -1242,8 +1242,8 @@
       { emoji: '🥥', name: 'جوز الهند' },
       { emoji: '🍏', name: 'تفاح أخضر' },
       { emoji: '🍅', name: 'طماطم' },
-      { emoji: '🍌', name: 'موز بلدي' },
-      { emoji: '🍊', name: 'يوسفي' }
+      { emoji: '🍊', name: 'يوسفي' },
+      { emoji: '🍇', name: 'زبيب' }
     ]
   },
 
@@ -1262,15 +1262,15 @@
       { emoji: '🧄', name: 'ثوم' },
       { emoji: '🥔', name: 'بطاطس' },
       { emoji: '🍆', name: 'باذنجان' },
-      { emoji: '🥗', name: 'سلطة' },
       { emoji: '🍠', name: 'بطاطا' },
-      { emoji: '🥜', name: 'فول سوداني' },
       { emoji: '🫘', name: 'فاصوليا' },
       { emoji: '🥦', name: 'قرنبيط' },
       { emoji: '🥒', name: 'كوسة' },
-      { emoji: '🫑', name: 'فلفل رومي' },
       { emoji: '🥬', name: 'سبانخ' },
-      { emoji: '🍄', name: 'فطر' }
+      { emoji: '🍄', name: 'فطر' },
+      { emoji: '🫑', name: 'فلفل رومي' },
+      { emoji: '🥗', name: 'سلطة' },
+      { emoji: '🥕', name: 'جزر صغير' }
     ]
   },
 
@@ -1294,10 +1294,10 @@
       { emoji: '🦊', name: 'ثعلب' },
       { emoji: '🐰', name: 'أرنب' },
       { emoji: '🐸', name: 'ضفدع' },
-      { emoji: '🐔', name: 'دجاجة' },
       { emoji: '🐺', name: 'ذئب' },
       { emoji: '🦓', name: 'حمار وحشي' },
-      { emoji: '🦛', name: 'فرس النهر' }
+      { emoji: '🦛', name: 'فرس النهر' },
+      { emoji: '🦏', name: 'وحيد القرن' }
     ]
   },
 
@@ -1321,13 +1321,68 @@
       { emoji: '🐤', name: 'كتكوت' },
       { emoji: '🐦', name: 'غراب' },
       { emoji: '🦅', name: 'صقر' },
-      { emoji: '🦉', name: 'بوم' },
       { emoji: '🐦', name: 'سنونو' },
       { emoji: '🐦', name: 'عندليب' },
-      { emoji: '🐦', name: 'كناري' }
+      { emoji: '🐦', name: 'كناري' },
+      { emoji: '🐦', name: 'لقلق' }
+    ]
+  },
+
+  colors: {
+    name: 'ألوان',
+    icon: '🎨',
+    items: [
+      { emoji: '🔴', name: 'أحمر' },
+      { emoji: '🟠', name: 'برتقالي' },
+      { emoji: '🟡', name: 'أصفر' },
+      { emoji: '🟢', name: 'أخضر' },
+      { emoji: '🔵', name: 'أزرق' },
+      { emoji: '🟣', name: 'بنفسجي' },
+      { emoji: '⚫', name: 'أسود' },
+      { emoji: '⚪', name: 'أبيض' },
+      { emoji: '🟤', name: 'بني' },
+      { emoji: '🩷', name: 'وردي' },
+      { emoji: '🩶', name: 'رمادي' },
+      { emoji: '🟦', name: 'أزرق سماوي' },
+      { emoji: '🟩', name: 'أخضر فاتح' },
+      { emoji: '🟨', name: 'أصفر فاتح' },
+      { emoji: '🟥', name: 'أحمر غامق' },
+      { emoji: '🟧', name: 'برتقالي فاتح' },
+      { emoji: '🟪', name: 'موف' },
+      { emoji: '🔷', name: 'تركواز' },
+      { emoji: '🟫', name: 'بيج' },
+      { emoji: '✨', name: 'ذهبي' }
+    ]
+  },
+
+  capitals: {
+    name: 'عواصم',
+    icon: '🏛️',
+    items: [
+      { emoji: '🇪🇬', name: 'القاهرة' },
+      { emoji: '🇸🇦', name: 'الرياض' },
+      { emoji: '🇦🇪', name: 'أبوظبي' },
+      { emoji: '🇶🇦', name: 'الدوحة' },
+      { emoji: '🇰🇼', name: 'الكويت' },
+      { emoji: '🇧🇭', name: 'المنامة' },
+      { emoji: '🇴🇲', name: 'مسقط' },
+      { emoji: '🇯🇴', name: 'عمّان' },
+      { emoji: '🇱🇧', name: 'بيروت' },
+      { emoji: '🇸🇾', name: 'دمشق' },
+      { emoji: '🇮🇶', name: 'بغداد' },
+      { emoji: '🇾🇪', name: 'صنعاء' },
+      { emoji: '🇲🇦', name: 'الرباط' },
+      { emoji: '🇩🇿', name: 'الجزائر' },
+      { emoji: '🇹🇳', name: 'تونس' },
+      { emoji: '🇱🇾', name: 'طرابلس' },
+      { emoji: '🇸🇩', name: 'الخرطوم' },
+      { emoji: '🇹🇷', name: 'أنقرة' },
+      { emoji: '🇫🇷', name: 'باريس' },
+      { emoji: '🇬🇧', name: 'لندن' }
     ]
   }
 };
+
 
         // ==================== دوال Firebase والمصادقة ====================
         function switchAuthTab(tab) {
